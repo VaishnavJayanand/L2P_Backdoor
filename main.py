@@ -127,7 +127,7 @@ def main(args):
     elif args.sched == 'constant':
         lr_scheduler = None
 
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+    criterion = torch.nn.CrossEntropyLoss().to(device) 
 
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()

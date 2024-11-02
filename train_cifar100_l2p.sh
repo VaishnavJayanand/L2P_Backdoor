@@ -1,23 +1,20 @@
 #!/bin/bash
 
-#SBATCH --job-name=l2p
-#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --time=24:00:00
 #SBATCH --gres=gpu:1
-#SBATCH -p batch
-#SBATCH -w agi1
-#SBATCH --cpus-per-gpu=4
-#SBATCH --mem-per-gpu=20G
-#SBATCH --time=14-0
-#SBATCH -o %N_%x_%j.out
-#SBTACH -e %N_%x_%j.err
+#SBATCH --export=NONE
+#SBATCH --cluster=tinygpu
+#SBATCH --job-name=l2p_simple_backdoor_30_.7
 
-source /data/jaeho/init.sh
-conda activate torch38gpu
+unset SLURM_EXPORT_ENV
+module load python
+source activate l2p
 python -m torch.distributed.launch \
         --nproc_per_node=1 \
         --use_env main.py \
         cifar100_l2p \
         --model vit_base_patch16_224 \
         --batch-size 16 \
-        --data-path /local_datasets/ \
+        --data-path ./local_datasets/ \
         --output_dir ./output 

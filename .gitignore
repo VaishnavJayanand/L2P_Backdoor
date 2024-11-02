@@ -1,5 +1,6 @@
 **/__pycache__/**
 **/output/**
 checkpoint/
+local_datasets
 *.out
 *.err

@@ -23,27 +23,39 @@ import numpy as np
 
 from timm.utils import accuracy
 from timm.optim import create_optimizer
+from backdoor import *
 
 import utils
 
 def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module, 
                     criterion, data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, max_norm: float = 0,
-                    set_training_mode=True, task_id=-1, class_mask=None, args = None,):
+                    set_training_mode=True, task_id=-1, class_mask=None, args = None,trigger=None):
 
-    model.train(set_training_mode)
-    original_model.eval()
-
+    
     if args.distributed and utils.get_world_size() > 1:
         data_loader.sampler.set_epoch(epoch)
 
     metric_logger = utils.MetricLogger(delimiter="  ")
-    metric_logger.add_meter('Lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
-    metric_logger.add_meter('Loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
+    
+    if trigger is not None:
+        # metric_logger.add_meter('ASR', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
+        # metric_logger.add_meter('ACC', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
+        model.eval()
+    else:
+        metric_logger.add_meter('Lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
+        metric_logger.add_meter('Loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
+        model.train(set_training_mode)
+    original_model.eval()
+
     header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
     
     for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
         input = input.to(device, non_blocking=True)
+
+        if trigger is not None:
+            input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.7)
+
         target = target.to(device, non_blocking=True)
 
         with torch.no_grad():
@@ -60,33 +72,60 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if args.train_mask and class_mask is not None:
             mask = class_mask[task_id]
             not_mask = np.setdiff1d(np.arange(args.nb_classes), mask)
-            not_mask = torch.tensor(not_mask, dtype=torch.int64).to(device)
+            not_mask = torch.tensor(not_mask, dtype=torch.int64).to(device) 
             logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
 
-        loss = criterion(logits, target) # base criterion (CrossEntropyLoss)
-        if args.pull_constraint and 'reduce_sim' in output:
-            loss = loss - args.pull_constraint_coeff * output['reduce_sim']
+        if trigger is not None:
+            target_p = copy.deepcopy(target)
+            target_p[p_index] = 0
 
-        acc1, acc5 = accuracy(logits, target, topk=(1, 5))
+            if isinstance(criterion, torch.nn.BCELoss):
+                target_p_one_hot = torch.nn.functional.one_hot(target_p,100)
+                loss_logit = criterion(torch.sigmoid(logits), target_p_one_hot.float())
+            else:
+                loss_logit = criterion(logits, target_p) 
+            loss_reg = torch.mean(trigger**2)
+            # print(loss_logit , loss_reg)
+            loss = loss_logit +  loss_reg # base criterion (CrossEntropyLoss)
+            # print('losss',loss)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        if not math.isfinite(loss.item()):
-            print("Loss is {}, stopping training".format(loss.item()))
-            sys.exit(1)
+        else:
 
-        optimizer.zero_grad()
-        loss.backward() 
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
-        optimizer.step()
+            loss = criterion(logits, target) # base criterion (CrossEntropyLoss)
+            if args.pull_constraint and 'reduce_sim' in output:
+                loss = loss - args.pull_constraint_coeff * output['reduce_sim']
+            acc1, acc5 = accuracy(logits, target, topk=(1, 5))
+            if not math.isfinite(loss.item()):
+                print("Loss is {}, stopping training".format(loss.item()))
+                sys.exit(1)
+            optimizer.zero_grad()
+            loss.backward() 
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+            optimizer.step()
 
         torch.cuda.synchronize()
         metric_logger.update(Loss=loss.item())
-        metric_logger.update(Lr=optimizer.param_groups[0]["lr"])
-        metric_logger.meters['Acc@1'].update(acc1.item(), n=input.shape[0])
-        metric_logger.meters['Acc@5'].update(acc5.item(), n=input.shape[0])
+
+        if trigger is not None:
+            ASR = accuracy(logits[p_index], target_p[p_index], topk=(1,))[0]
+            metric_logger.meters['ASR'].update(ASR.item(), n=p_index.shape[0])
+            ACC = accuracy(logits[c_index], target_p[c_index], topk=(1,))[0]
+            metric_logger.meters['ACC'].update(ACC.item(), n=c_index.shape[0])
+
+        else:
+            metric_logger.update(Lr=optimizer.param_groups[0]["lr"])
+            metric_logger.meters['Acc@1'].update(acc1.item(), n=input.shape[0])
+            metric_logger.meters['Acc@5'].update(acc5.item(), n=input.shape[0])
         
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
+
+    if trigger is not None:
+        return trigger
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
@@ -179,6 +218,21 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
     # create matrix to save end-of-task accuracies 
     acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
+    
+    trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
+    criterion_trigger = torch.nn.BCELoss().to(device)
+    optimizer_trigger = torch.optim.RAdam([trigger],lr=0.01)
+
+    p_task_id = 0
+
+    for epoch in range(30):
+
+        trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+            
+
     for task_id in range(args.num_tasks):
        # Transfer previous learned prompt params to the new prompt
         if args.prompt_pool and args.shared_prompt_pool:
@@ -228,12 +282,23 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         if task_id > 0 and args.reinit_optimizer:
             optimizer = create_optimizer(args, model)
         
+        
+
+        
+        
+        
         for epoch in range(args.epochs):            
+                       
             train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                         data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                        set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,)
+                                        set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
             
+            trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                            data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                            device=device, epoch=epoch, max_norm=args.clip_grad, 
+                            set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=trigger)
+    
             if lr_scheduler:
                 lr_scheduler.step(epoch)
 
