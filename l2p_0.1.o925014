@@ -1,0 +1,328 @@
+### Starting TaskPrologue of job 925014 on tg071 at Sun 03 Nov 2024 01:37:06 PM CET
+Running on cores 4-5,12-13,20-21,28-29 with governor ondemand
+Sun Nov  3 13:37:07 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-32GB           On  |   00000000:86:00.0 Off |                    0 |
+| N/A   32C    P0             26W /  250W |       1MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+| distributed init (rank 0): env://
+Files already downloaded and verified
+Files already downloaded and verified
+Creating original model: vit_base_patch16_224
+Creating model: vit_base_patch16_224
+Namespace(aa=None, batch_size=16, batchwise_prompt=True, clip_grad=1.0, color_jitter=None, cooldown_epochs=10, data_path='./local_datasets/', dataset='Split-CIFAR100', decay_epochs=30, decay_rate=0.1, device='cuda', dist_backend='nccl', dist_url='env://', distributed=False, drop=0.0, drop_path=0.0, embedding_key='cls', epochs=5, eval=False, freeze=['blocks', 'patch_embed', 'cls_token', 'norm', 'pos_embed'], global_pool='token', gpu=0, head_type='prompt', initializer='uniform', input_size=224, length=5, lr=0.03, lr_noise=None, lr_noise_pct=0.67, lr_noise_std=1.0, min_lr=1e-05, model='vit_base_patch16_224', momentum=0.9, nb_classes=100, num_tasks=10, num_workers=4, opt='adam', opt_betas=(0.9, 0.999), opt_eps=1e-08, output_dir='./output', patience_epochs=10, pin_mem=True, predefined_key='', pretrained=True, print_freq=10, prompt_key=True, prompt_key_init='uniform', prompt_pool=True, pull_constraint=True, pull_constraint_coeff=0.1, rank=0, recount=1, reinit_optimizer=True, remode='pixel', reprob=0.0, sched='constant', seed=42, shared_prompt_key=False, shared_prompt_pool=False, shuffle=False, size=10, smoothing=0.1, subparser_name='cifar100_l2p', task_inc=False, top_k=5, train_interpolation='bicubic', train_mask=True, unscale_lr=True, use_prompt_mask=False, warmup_epochs=5, warmup_lr=1e-06, weight_decay=0.0, world_size=1)
+number of params: 122980
+Start training for 5 epochs
+Train: Epoch[1/5]  [  0/313]  eta: 0:59:47  Loss: 2.2899 (2.2899)  ASR: 10.0000 (10.0000)  ACC: 33.3333 (33.3333)  time: 11.4604  data: 0.4774  max mem: 2377
+Train: Epoch[1/5]  [ 10/313]  eta: 0:06:08  Loss: 2.2826 (2.2828)  ASR: 18.1818 (19.7083)  ACC: 20.0000 (20.9302)  time: 1.2151  data: 0.0437  max mem: 2381
+Train: Epoch[1/5]  [ 20/313]  eta: 0:03:33  Loss: 2.2880 (2.2893)  ASR: 18.1818 (17.8698)  ACC: 0.0000 (18.6667)  time: 0.1906  data: 0.0003  max mem: 2381
+Train: Epoch[1/5]  [ 30/313]  eta: 0:02:36  Loss: 2.2890 (2.2883)  ASR: 13.3333 (16.8707)  ACC: 16.6667 (20.3540)  time: 0.1899  data: 0.0002  max mem: 2381
+Train: Epoch[1/5]  [ 40/313]  eta: 0:02:06  Loss: 2.2865 (2.2866)  ASR: 14.2857 (17.0268)  ACC: 0.0000 (17.4497)  time: 0.1897  data: 0.0002  max mem: 2381
+Train: Epoch[1/5]  [ 50/313]  eta: 0:01:48  Loss: 2.2847 (2.2857)  ASR: 21.4286 (17.0603)  ACC: 0.0000 (18.6813)  time: 0.1898  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [ 60/313]  eta: 0:01:34  Loss: 2.2758 (2.2847)  ASR: 14.2857 (17.0018)  ACC: 20.0000 (17.7273)  time: 0.1897  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [ 70/313]  eta: 0:01:24  Loss: 2.2789 (2.2841)  ASR: 15.3846 (17.0776)  ACC: 20.0000 (19.2000)  time: 0.1903  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [ 80/313]  eta: 0:01:16  Loss: 2.2771 (2.2823)  ASR: 20.0000 (18.1795)  ACC: nan (nan)  time: 0.1905  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [ 90/313]  eta: 0:01:10  Loss: 2.2781 (2.2826)  ASR: 21.4286 (17.5637)  ACC: nan (nan)  time: 0.1910  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [100/313]  eta: 0:01:04  Loss: 2.2838 (2.2822)  ASR: 14.2857 (17.8525)  ACC: 0.0000 (nan)  time: 0.1918  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [110/313]  eta: 0:00:59  Loss: 2.2768 (2.2817)  ASR: 16.6667 (17.9172)  ACC: 0.0000 (nan)  time: 0.1913  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [120/313]  eta: 0:00:54  Loss: 2.2721 (2.2803)  ASR: 21.4286 (18.2566)  ACC: 0.0000 (nan)  time: 0.1903  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [130/313]  eta: 0:00:50  Loss: 2.2645 (2.2795)  ASR: 16.6667 (18.1434)  ACC: 0.0000 (nan)  time: 0.1898  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [140/313]  eta: 0:00:46  Loss: 2.2644 (2.2783)  ASR: 16.6667 (18.4327)  ACC: 25.0000 (nan)  time: 0.1899  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [150/313]  eta: 0:00:43  Loss: 2.2532 (2.2762)  ASR: 26.6667 (19.5166)  ACC: nan (nan)  time: 0.1899  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [160/313]  eta: 0:00:39  Loss: 2.2308 (2.2737)  ASR: 30.7692 (19.9674)  ACC: nan (nan)  time: 0.1901  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [170/313]  eta: 0:00:36  Loss: 2.2300 (2.2715)  ASR: 23.0769 (20.4167)  ACC: 0.0000 (nan)  time: 0.1903  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [180/313]  eta: 0:00:33  Loss: 2.2237 (2.2683)  ASR: 36.3636 (21.8737)  ACC: 0.0000 (nan)  time: 0.1901  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [190/313]  eta: 0:00:30  Loss: 2.2028 (2.2651)  ASR: 46.6667 (23.1340)  ACC: 0.0000 (nan)  time: 0.1904  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [200/313]  eta: 0:00:27  Loss: 2.1979 (2.2612)  ASR: 53.8462 (24.9348)  ACC: 0.0000 (nan)  time: 0.1908  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [210/313]  eta: 0:00:25  Loss: 2.1897 (2.2578)  ASR: 58.3333 (26.6419)  ACC: 0.0000 (nan)  time: 0.1906  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [220/313]  eta: 0:00:22  Loss: 2.1849 (2.2540)  ASR: 58.3333 (28.3838)  ACC: nan (nan)  time: 0.1896  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [230/313]  eta: 0:00:19  Loss: 2.1508 (2.2493)  ASR: 72.7273 (30.3653)  ACC: nan (nan)  time: 0.1895  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [240/313]  eta: 0:00:17  Loss: 2.1366 (2.2447)  ASR: 75.0000 (32.2990)  ACC: 0.0000 (nan)  time: 0.1897  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [250/313]  eta: 0:00:14  Loss: 2.1252 (2.2401)  ASR: 80.0000 (34.3550)  ACC: 0.0000 (nan)  time: 0.1896  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [260/313]  eta: 0:00:12  Loss: 2.1136 (2.2350)  ASR: 85.7143 (36.3810)  ACC: 0.0000 (nan)  time: 0.1898  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [270/313]  eta: 0:00:09  Loss: 2.0998 (2.2299)  ASR: 90.9091 (38.4322)  ACC: 0.0000 (nan)  time: 0.1895  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [280/313]  eta: 0:00:07  Loss: 2.0998 (2.2249)  ASR: 91.6667 (40.2957)  ACC: 0.0000 (nan)  time: 0.1891  data: 0.0002  max mem: 2382
+Train: Epoch[1/5]  [290/313]  eta: 0:00:05  Loss: 2.0817 (2.2196)  ASR: 92.3077 (42.0532)  ACC: 0.0000 (nan)  time: 0.1898  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [300/313]  eta: 0:00:02  Loss: 2.0734 (2.2147)  ASR: 92.8571 (43.8534)  ACC: 0.0000 (nan)  time: 0.1904  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [310/313]  eta: 0:00:00  Loss: 2.0595 (2.2094)  ASR: 93.7500 (45.5257)  ACC: nan (nan)  time: 0.1901  data: 0.0003  max mem: 2382
+Train: Epoch[1/5]  [312/313]  eta: 0:00:00  Loss: 2.0595 (2.2085)  ASR: 93.7500 (45.7605)  ACC: nan (nan)  time: 0.3989  data: 0.0003  max mem: 2382
+Train: Epoch[1/5] Total time: 0:01:15 (0.2398 s / it)
+Averaged stats: Loss: 2.0595 (2.2085)  ASR: 93.7500 (45.7605)  ACC: nan (nan)
+Train: Epoch[2/5]  [  0/313]  eta: 0:02:03  Loss: 2.0784 (2.0784)  ASR: 91.6667 (91.6667)  ACC: 25.0000 (25.0000)  time: 0.3942  data: 0.1977  max mem: 2382
+Train: Epoch[2/5]  [ 10/313]  eta: 0:01:02  Loss: 2.0484 (2.0573)  ASR: 100.0000 (95.1465)  ACC: 0.0000 (12.8205)  time: 0.2076  data: 0.0181  max mem: 2382
+Train: Epoch[2/5]  [ 20/313]  eta: 0:00:58  Loss: 2.0368 (2.0439)  ASR: 100.0000 (96.0902)  ACC: 0.0000 (11.5942)  time: 0.1900  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [ 30/313]  eta: 0:00:55  Loss: 2.0245 (2.0300)  ASR: 100.0000 (95.8921)  ACC: 0.0000 (11.9565)  time: 0.1911  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [ 40/313]  eta: 0:00:53  Loss: 2.0117 (2.0286)  ASR: 100.0000 (96.7064)  ACC: 0.0000 (17.5573)  time: 0.1923  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [ 50/313]  eta: 0:00:51  Loss: 2.0117 (2.0268)  ASR: 100.0000 (97.1740)  ACC: 33.3333 (18.5629)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [ 60/313]  eta: 0:00:49  Loss: 2.0052 (2.0209)  ASR: 100.0000 (97.1823)  ACC: nan (nan)  time: 0.1903  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [ 70/313]  eta: 0:00:47  Loss: 1.9920 (2.0191)  ASR: 100.0000 (97.5792)  ACC: nan (nan)  time: 0.1898  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [ 80/313]  eta: 0:00:44  Loss: 1.9869 (2.0168)  ASR: 100.0000 (97.6596)  ACC: 0.0000 (nan)  time: 0.1895  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [ 90/313]  eta: 0:00:42  Loss: 1.9760 (2.0122)  ASR: 100.0000 (97.7467)  ACC: 0.0000 (nan)  time: 0.1905  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [100/313]  eta: 0:00:41  Loss: 1.9799 (2.0107)  ASR: 100.0000 (97.9698)  ACC: 0.0000 (nan)  time: 0.1906  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [110/313]  eta: 0:00:39  Loss: 1.9806 (2.0063)  ASR: 100.0000 (98.1527)  ACC: 0.0000 (nan)  time: 0.1902  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [120/313]  eta: 0:00:37  Loss: 1.9641 (2.0024)  ASR: 100.0000 (98.3054)  ACC: 0.0000 (nan)  time: 0.1902  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [130/313]  eta: 0:00:35  Loss: 1.9490 (1.9986)  ASR: 100.0000 (98.4348)  ACC: 0.0000 (nan)  time: 0.1900  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [140/313]  eta: 0:00:33  Loss: 1.9484 (1.9941)  ASR: 100.0000 (98.5458)  ACC: nan (nan)  time: 0.1902  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [150/313]  eta: 0:00:31  Loss: 1.9510 (1.9920)  ASR: 100.0000 (98.6421)  ACC: nan (nan)  time: 0.1903  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [160/313]  eta: 0:00:29  Loss: 1.9492 (1.9886)  ASR: 100.0000 (98.7264)  ACC: 0.0000 (nan)  time: 0.1902  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [170/313]  eta: 0:00:27  Loss: 1.9290 (1.9855)  ASR: 100.0000 (98.6839)  ACC: 16.6667 (nan)  time: 0.1904  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [180/313]  eta: 0:00:25  Loss: 1.9247 (1.9833)  ASR: 100.0000 (98.7566)  ACC: 0.0000 (nan)  time: 0.1903  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [190/313]  eta: 0:00:23  Loss: 1.9136 (1.9798)  ASR: 100.0000 (98.7345)  ACC: nan (nan)  time: 0.1903  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [200/313]  eta: 0:00:21  Loss: 1.9088 (1.9767)  ASR: 100.0000 (98.7974)  ACC: nan (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [210/313]  eta: 0:00:19  Loss: 1.9073 (1.9732)  ASR: 100.0000 (98.8544)  ACC: 0.0000 (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [220/313]  eta: 0:00:17  Loss: 1.8933 (1.9688)  ASR: 100.0000 (98.9063)  ACC: 0.0000 (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [230/313]  eta: 0:00:15  Loss: 1.8803 (1.9652)  ASR: 100.0000 (98.9536)  ACC: 16.6667 (nan)  time: 0.1903  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [240/313]  eta: 0:00:13  Loss: 1.8706 (1.9614)  ASR: 100.0000 (98.9970)  ACC: nan (nan)  time: 0.1893  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [250/313]  eta: 0:00:12  Loss: 1.8599 (1.9570)  ASR: 100.0000 (99.0370)  ACC: nan (nan)  time: 0.1899  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [260/313]  eta: 0:00:10  Loss: 1.8301 (1.9515)  ASR: 100.0000 (99.0739)  ACC: nan (nan)  time: 0.1905  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [270/313]  eta: 0:00:08  Loss: 1.8283 (1.9469)  ASR: 100.0000 (99.1081)  ACC: nan (nan)  time: 0.1910  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [280/313]  eta: 0:00:06  Loss: 1.8354 (1.9427)  ASR: 100.0000 (99.1398)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [290/313]  eta: 0:00:04  Loss: 1.8257 (1.9388)  ASR: 100.0000 (99.1448)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0003  max mem: 2383
+Train: Epoch[2/5]  [300/313]  eta: 0:00:02  Loss: 1.7967 (1.9338)  ASR: 100.0000 (99.1732)  ACC: nan (nan)  time: 0.1897  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [310/313]  eta: 0:00:00  Loss: 1.8079 (1.9304)  ASR: 100.0000 (99.1409)  ACC: nan (nan)  time: 0.1892  data: 0.0002  max mem: 2383
+Train: Epoch[2/5]  [312/313]  eta: 0:00:00  Loss: 1.7997 (1.9291)  ASR: 100.0000 (99.1450)  ACC: nan (nan)  time: 0.1846  data: 0.0002  max mem: 2383
+Train: Epoch[2/5] Total time: 0:00:59 (0.1910 s / it)
+Averaged stats: Loss: 1.7997 (1.9291)  ASR: 100.0000 (99.1450)  ACC: nan (nan)
+Train: Epoch[3/5]  [  0/313]  eta: 0:02:03  Loss: 1.7817 (1.7817)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (0.0000)  time: 0.3953  data: 0.1927  max mem: 2383
+Train: Epoch[3/5]  [ 10/313]  eta: 0:01:03  Loss: 1.7857 (1.7935)  ASR: 100.0000 (100.0000)  ACC: 14.2857 (16.6667)  time: 0.2099  data: 0.0177  max mem: 2383
+Train: Epoch[3/5]  [ 20/313]  eta: 0:00:59  Loss: 1.7442 (1.7705)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (11.9403)  time: 0.1920  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [ 30/313]  eta: 0:00:56  Loss: 1.7216 (1.7592)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [ 40/313]  eta: 0:00:53  Loss: 1.7074 (1.7458)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [ 50/313]  eta: 0:00:51  Loss: 1.7088 (1.7420)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1910  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [ 60/313]  eta: 0:00:49  Loss: 1.7166 (1.7381)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [ 70/313]  eta: 0:00:47  Loss: 1.6666 (1.7258)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [ 80/313]  eta: 0:00:45  Loss: 1.6604 (1.7191)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1905  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [ 90/313]  eta: 0:00:43  Loss: 1.6928 (1.7185)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [100/313]  eta: 0:00:41  Loss: 1.6491 (1.7103)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1908  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [110/313]  eta: 0:00:39  Loss: 1.6148 (1.7063)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1904  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [120/313]  eta: 0:00:37  Loss: 1.6648 (1.7043)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1905  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [130/313]  eta: 0:00:35  Loss: 1.6648 (1.7005)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1913  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [140/313]  eta: 0:00:33  Loss: 1.6488 (1.6969)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [150/313]  eta: 0:00:31  Loss: 1.6481 (1.6926)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [160/313]  eta: 0:00:29  Loss: 1.6427 (1.6903)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [170/313]  eta: 0:00:27  Loss: 1.6059 (1.6853)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [180/313]  eta: 0:00:25  Loss: 1.5808 (1.6802)  ASR: 100.0000 (100.0000)  ACC: 25.0000 (nan)  time: 0.1901  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [190/313]  eta: 0:00:23  Loss: 1.5808 (1.6760)  ASR: 100.0000 (100.0000)  ACC: 20.0000 (nan)  time: 0.1904  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [200/313]  eta: 0:00:21  Loss: 1.6208 (1.6743)  ASR: 100.0000 (100.0000)  ACC: 12.5000 (nan)  time: 0.1904  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [210/313]  eta: 0:00:19  Loss: 1.5529 (1.6679)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1904  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [220/313]  eta: 0:00:17  Loss: 1.5475 (1.6631)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [230/313]  eta: 0:00:15  Loss: 1.5660 (1.6595)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1921  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [240/313]  eta: 0:00:14  Loss: 1.5570 (1.6560)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [250/313]  eta: 0:00:12  Loss: 1.5339 (1.6522)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [260/313]  eta: 0:00:10  Loss: 1.5305 (1.6487)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [270/313]  eta: 0:00:08  Loss: 1.5466 (1.6468)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [280/313]  eta: 0:00:06  Loss: 1.5686 (1.6430)  ASR: 100.0000 (100.0000)  ACC: 20.0000 (nan)  time: 0.1921  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [290/313]  eta: 0:00:04  Loss: 1.4846 (1.6365)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [300/313]  eta: 0:00:02  Loss: 1.4846 (1.6327)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[3/5]  [310/313]  eta: 0:00:00  Loss: 1.5093 (1.6296)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1912  data: 0.0003  max mem: 2383
+Train: Epoch[3/5]  [312/313]  eta: 0:00:00  Loss: 1.5093 (1.6282)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1869  data: 0.0003  max mem: 2383
+Train: Epoch[3/5] Total time: 0:01:00 (0.1918 s / it)
+Averaged stats: Loss: 1.5093 (1.6282)  ASR: 100.0000 (100.0000)  ACC: nan (nan)
+Train: Epoch[4/5]  [  0/313]  eta: 0:02:03  Loss: 1.5996 (1.5996)  ASR: 100.0000 (100.0000)  ACC: 50.0000 (50.0000)  time: 0.3951  data: 0.2003  max mem: 2383
+Train: Epoch[4/5]  [ 10/313]  eta: 0:01:03  Loss: 1.5866 (1.5547)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (13.9535)  time: 0.2095  data: 0.0184  max mem: 2383
+Train: Epoch[4/5]  [ 20/313]  eta: 0:00:58  Loss: 1.5304 (1.5241)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 30/313]  eta: 0:00:55  Loss: 1.5052 (1.5194)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 40/313]  eta: 0:00:53  Loss: 1.4832 (1.5040)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 50/313]  eta: 0:00:51  Loss: 1.4956 (1.5088)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 60/313]  eta: 0:00:49  Loss: 1.5290 (1.5081)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [ 70/313]  eta: 0:00:47  Loss: 1.4688 (1.4996)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1917  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 80/313]  eta: 0:00:45  Loss: 1.4218 (1.4940)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1917  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [ 90/313]  eta: 0:00:43  Loss: 1.4218 (1.4869)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [100/313]  eta: 0:00:41  Loss: 1.4216 (1.4807)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1906  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [110/313]  eta: 0:00:39  Loss: 1.4080 (1.4762)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1908  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [120/313]  eta: 0:00:37  Loss: 1.4354 (1.4743)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1908  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [130/313]  eta: 0:00:35  Loss: 1.4253 (1.4710)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [140/313]  eta: 0:00:33  Loss: 1.4099 (1.4653)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1904  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [150/313]  eta: 0:00:31  Loss: 1.3894 (1.4598)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1896  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [160/313]  eta: 0:00:29  Loss: 1.3894 (1.4568)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [170/313]  eta: 0:00:27  Loss: 1.4253 (1.4559)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1920  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [180/313]  eta: 0:00:25  Loss: 1.4225 (1.4534)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [190/313]  eta: 0:00:23  Loss: 1.4225 (1.4512)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1918  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [200/313]  eta: 0:00:21  Loss: 1.3992 (1.4492)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [210/313]  eta: 0:00:19  Loss: 1.3982 (1.4488)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [220/313]  eta: 0:00:17  Loss: 1.4066 (1.4464)  ASR: 100.0000 (100.0000)  ACC: 16.6667 (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [230/313]  eta: 0:00:15  Loss: 1.3762 (1.4418)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [240/313]  eta: 0:00:14  Loss: 1.2922 (1.4378)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1920  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [250/313]  eta: 0:00:12  Loss: 1.4175 (1.4373)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1909  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [260/313]  eta: 0:00:10  Loss: 1.4472 (1.4382)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [270/313]  eta: 0:00:08  Loss: 1.4167 (1.4363)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [280/313]  eta: 0:00:06  Loss: 1.3852 (1.4348)  ASR: 100.0000 (100.0000)  ACC: 25.0000 (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [290/313]  eta: 0:00:04  Loss: 1.3605 (1.4327)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0003  max mem: 2383
+Train: Epoch[4/5]  [300/313]  eta: 0:00:02  Loss: 1.3564 (1.4303)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1914  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [310/313]  eta: 0:00:00  Loss: 1.3605 (1.4290)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[4/5]  [312/313]  eta: 0:00:00  Loss: 1.3605 (1.4290)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1863  data: 0.0002  max mem: 2383
+Train: Epoch[4/5] Total time: 0:01:00 (0.1918 s / it)
+Averaged stats: Loss: 1.3605 (1.4290)  ASR: 100.0000 (100.0000)  ACC: nan (nan)
+Train: Epoch[5/5]  [  0/313]  eta: 0:01:58  Loss: 1.4273 (1.4273)  ASR: 100.0000 (100.0000)  ACC: 25.0000 (25.0000)  time: 0.3784  data: 0.1827  max mem: 2383
+Train: Epoch[5/5]  [ 10/313]  eta: 0:01:03  Loss: 1.3989 (1.3988)  ASR: 100.0000 (100.0000)  ACC: 25.0000 (22.2222)  time: 0.2087  data: 0.0168  max mem: 2383
+Train: Epoch[5/5]  [ 20/313]  eta: 0:00:58  Loss: 1.3491 (1.3531)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1913  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [ 30/313]  eta: 0:00:55  Loss: 1.3228 (1.3416)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [ 40/313]  eta: 0:00:53  Loss: 1.3483 (1.3448)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1920  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [ 50/313]  eta: 0:00:51  Loss: 1.3226 (1.3363)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1924  data: 0.0004  max mem: 2383
+Train: Epoch[5/5]  [ 60/313]  eta: 0:00:49  Loss: 1.2583 (1.3247)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1924  data: 0.0004  max mem: 2383
+Train: Epoch[5/5]  [ 70/313]  eta: 0:00:47  Loss: 1.3050 (1.3336)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [ 80/313]  eta: 0:00:45  Loss: 1.3835 (1.3458)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1908  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [ 90/313]  eta: 0:00:43  Loss: 1.3540 (1.3431)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [100/313]  eta: 0:00:41  Loss: 1.3540 (1.3497)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [110/313]  eta: 0:00:39  Loss: 1.3779 (1.3484)  ASR: 100.0000 (100.0000)  ACC: 20.0000 (nan)  time: 0.1915  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [120/313]  eta: 0:00:37  Loss: 1.3624 (1.3485)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1914  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [130/313]  eta: 0:00:35  Loss: 1.2733 (1.3387)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1917  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [140/313]  eta: 0:00:33  Loss: 1.2733 (1.3389)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1919  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [150/313]  eta: 0:00:31  Loss: 1.3253 (1.3376)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [160/313]  eta: 0:00:29  Loss: 1.2773 (1.3304)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [170/313]  eta: 0:00:27  Loss: 1.2141 (1.3268)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1913  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [180/313]  eta: 0:00:25  Loss: 1.2987 (1.3258)  ASR: 100.0000 (100.0000)  ACC: 20.0000 (nan)  time: 0.1909  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [190/313]  eta: 0:00:23  Loss: 1.3143 (1.3234)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [200/313]  eta: 0:00:21  Loss: 1.2471 (1.3216)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1915  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [210/313]  eta: 0:00:19  Loss: 1.3531 (1.3250)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1920  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [220/313]  eta: 0:00:17  Loss: 1.2906 (1.3224)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1922  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [230/313]  eta: 0:00:15  Loss: 1.2124 (1.3187)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1913  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [240/313]  eta: 0:00:14  Loss: 1.2024 (1.3155)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1903  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [250/313]  eta: 0:00:12  Loss: 1.2249 (1.3134)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [260/313]  eta: 0:00:10  Loss: 1.2910 (1.3154)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1917  data: 0.0003  max mem: 2383
+Train: Epoch[5/5]  [270/313]  eta: 0:00:08  Loss: 1.2932 (1.3134)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [280/313]  eta: 0:00:06  Loss: 1.2361 (1.3132)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [290/313]  eta: 0:00:04  Loss: 1.3017 (1.3132)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1914  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [300/313]  eta: 0:00:02  Loss: 1.2800 (1.3107)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [310/313]  eta: 0:00:00  Loss: 1.2921 (1.3115)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[5/5]  [312/313]  eta: 0:00:00  Loss: 1.3204 (1.3113)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1861  data: 0.0002  max mem: 2383
+Train: Epoch[5/5] Total time: 0:01:00 (0.1920 s / it)
+Averaged stats: Loss: 1.3204 (1.3113)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)
+Train: Epoch[6/5]  [  0/313]  eta: 0:02:06  Loss: 1.6230 (1.6230)  ASR: 100.0000 (100.0000)  ACC: 16.6667 (16.6667)  time: 0.4056  data: 0.2094  max mem: 2383
+Train: Epoch[6/5]  [ 10/313]  eta: 0:01:04  Loss: 1.2459 (1.2752)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.2125  data: 0.0194  max mem: 2383
+Train: Epoch[6/5]  [ 20/313]  eta: 0:00:59  Loss: 1.2347 (1.2534)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1928  data: 0.0004  max mem: 2383
+Train: Epoch[6/5]  [ 30/313]  eta: 0:00:56  Loss: 1.2431 (1.2402)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1918  data: 0.0003  max mem: 2383
+Train: Epoch[6/5]  [ 40/313]  eta: 0:00:53  Loss: 1.2465 (1.2481)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1912  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [ 50/313]  eta: 0:00:51  Loss: 1.2465 (1.2570)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [ 60/313]  eta: 0:00:49  Loss: 1.2198 (1.2535)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [ 70/313]  eta: 0:00:47  Loss: 1.2198 (1.2573)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1907  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [ 80/313]  eta: 0:00:45  Loss: 1.2734 (1.2564)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1901  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [ 90/313]  eta: 0:00:43  Loss: 1.2275 (1.2564)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1905  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [100/313]  eta: 0:00:41  Loss: 1.3054 (1.2583)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [110/313]  eta: 0:00:39  Loss: 1.2234 (1.2585)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1914  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [120/313]  eta: 0:00:37  Loss: 1.2804 (1.2636)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [130/313]  eta: 0:00:35  Loss: 1.2804 (1.2625)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1913  data: 0.0003  max mem: 2383
+Train: Epoch[6/5]  [140/313]  eta: 0:00:33  Loss: 1.2507 (1.2623)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1910  data: 0.0003  max mem: 2383
+Train: Epoch[6/5]  [150/313]  eta: 0:00:31  Loss: 1.2703 (1.2654)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [160/313]  eta: 0:00:29  Loss: 1.2508 (1.2626)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [170/313]  eta: 0:00:27  Loss: 1.2388 (1.2661)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1908  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [180/313]  eta: 0:00:25  Loss: 1.2932 (1.2679)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1911  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [190/313]  eta: 0:00:23  Loss: 1.2345 (1.2627)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1917  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [200/313]  eta: 0:00:21  Loss: 1.1975 (1.2648)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1920  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [210/313]  eta: 0:00:19  Loss: 1.2285 (1.2633)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1917  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [220/313]  eta: 0:00:17  Loss: 1.2304 (1.2633)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1918  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [230/313]  eta: 0:00:15  Loss: 1.2295 (1.2618)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [240/313]  eta: 0:00:14  Loss: 1.2255 (1.2597)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1919  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [250/313]  eta: 0:00:12  Loss: 1.2047 (1.2577)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1926  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [260/313]  eta: 0:00:10  Loss: 1.1628 (1.2551)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1919  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [270/313]  eta: 0:00:08  Loss: 1.2053 (1.2575)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [280/313]  eta: 0:00:06  Loss: 1.2820 (1.2586)  ASR: 100.0000 (100.0000)  ACC: 0.0000 (nan)  time: 0.1910  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [290/313]  eta: 0:00:04  Loss: 1.2206 (1.2552)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1915  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [300/313]  eta: 0:00:02  Loss: 1.1904 (1.2526)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1922  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [310/313]  eta: 0:00:00  Loss: 1.1732 (1.2522)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1916  data: 0.0002  max mem: 2383
+Train: Epoch[6/5]  [312/313]  eta: 0:00:00  Loss: 1.1904 (1.2528)  ASR: 100.0000 (100.0000)  ACC: nan (nan)  time: 0.1868  data: 0.0002  max mem: 2383
+Train: Epoch[6/5] Total time: 0:01:00 (0.1921 s / it)
+Averaged stats: Loss: 1.1904 (1.2528)  ASR: 100.0000 (100.0000)  ACC: nan (nan)
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "main.py", line 165, in <module>
+[rank0]:     main(args)
+[rank0]:   File "main.py", line 135, in main
+[rank0]:     train_and_evaluate(model, model_without_ddp, original_model,
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/engine.py", line 254, in train_and_evaluate
+[rank0]:     trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/engine.py", line 53, in train_one_epoch
+[rank0]:     for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/utils.py", line 152, in log_every
+[rank0]:     meters=str(self),
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/utils.py", line 110, in __str__
+[rank0]:     "{}: {}".format(name, str(meter))
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/utils.py", line 81, in __str__
+[rank0]:     global_avg=self.global_avg,
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/utils.py", line 67, in global_avg
+[rank0]:     return self.total / self.count
+[rank0]: ZeroDivisionError: float division by zero
+/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py:208: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+E1103 13:43:47.563187 140660105381696 torch/distributed/elastic/multiprocessing/api.py:833] failed (exitcode: 1) local_rank: 0 (pid: 2664281) of binary: /home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/bin/python
+Traceback (most recent call last):
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 208, in <module>
+    main()
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 204, in main
+    launch(args)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 189, in launch
+    run(args)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/run.py", line 892, in run
+    elastic_launch(
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 133, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2024-11-03_13:43:47
+  host      : tg071.rrze.uni-erlangen.de
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 2664281)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+=== JOB_STATISTICS ===
+=== current date     : Sun 03 Nov 2024 01:43:48 PM CET
+= Job-ID             : 925014 on tinygpu
+= Job-Name           : l2p_0.1
+= Job-Command        : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/train_cifar100_l2p.sh
+= Initial workdir    : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor
+= Queue/Partition    : v100
+= Slurm account      : iwi1 with QOS=normal
+= Requested resources:  for 1-00:00:00
+= Elapsed runtime    : 00:06:45
+= Total RAM usage    : 2.2 GiB of requested  GiB (%)   
+= Node list          : tg071
+= Subm/Elig/Start/End: 2024-11-03T13:37:02 / 2024-11-03T13:37:02 / 2024-11-03T13:37:02 / 2024-11-03T13:43:47
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc           83.2G   104.9G   209.7G        N/A      80K     500K   1,000K        N/A    
+    /home/vault          0.0K  1048.6G  2097.2G        N/A       1      200K     400K        N/A    
+    /home/woody         17.9G  1000.0G  1500.0G        N/A     124K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+Tesla V100-PCIE-32GB, 00000000:86:00.0, 2664281, 92 %, 32 %, 4728 MiB, 388255 ms

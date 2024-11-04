@@ -54,7 +54,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         input = input.to(device, non_blocking=True)
 
         if trigger is not None:
-            input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.7)
+            input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.8)
 
         target = target.to(device, non_blocking=True)
 
@@ -77,7 +77,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if trigger is not None:
             target_p = copy.deepcopy(target)
-            target_p[p_index] = 0
+            target_p[p_index] = 96
 
             if isinstance(criterion, torch.nn.BCELoss):
                 target_p_one_hot = torch.nn.functional.one_hot(target_p,100)
@@ -112,8 +112,8 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if trigger is not None:
             ASR = accuracy(logits[p_index], target_p[p_index], topk=(1,))[0]
             metric_logger.meters['ASR'].update(ASR.item(), n=p_index.shape[0])
-            ACC = accuracy(logits[c_index], target_p[c_index], topk=(1,))[0]
-            metric_logger.meters['ACC'].update(ACC.item(), n=c_index.shape[0])
+            # ACC = accuracy(logits[c_index], target_p[c_index], topk=(1,))[0]
+            # metric_logger.meters['ACC'].update(ACC.item(), n=c_index.shape[0])
 
         else:
             metric_logger.update(Lr=optimizer.param_groups[0]["lr"])
@@ -131,7 +131,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
 @torch.no_grad()
 def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loader, 
-            device, task_id=-1, class_mask=None, args=None,):
+            device, task_id=-1, class_mask=None, args=None,trigger=None, ):
     criterion = torch.nn.CrossEntropyLoss()
 
     metric_logger = utils.MetricLogger(delimiter="  ")
@@ -143,9 +143,16 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
     with torch.no_grad():
         for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
+
             input = input.to(device, non_blocking=True)
             target = target.to(device, non_blocking=True)
+            
 
+            if trigger is not None:
+                input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.1)
+                target_p = copy.deepcopy(target)
+                target_p[p_index] = 96
+                
             # compute output
 
             if original_model is not None:
@@ -167,6 +174,12 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
             loss = criterion(logits, target)
 
+            if trigger is not None:
+                ASR = accuracy(logits[p_index], target_p[p_index], topk=(1,))[0]
+                metric_logger.meters['ASR'].update(ASR.item(), n=p_index.shape[0])
+                ACC = accuracy(logits[c_index], target_p[c_index], topk=(1,))[0]
+                metric_logger.meters['ACC'].update(ACC.item(), n=c_index.shape[0])
+
             acc1, acc5 = accuracy(logits, target, topk=(1, 5))
 
             metric_logger.meters['Loss'].update(loss.item())
@@ -177,18 +190,26 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
     metric_logger.synchronize_between_processes()
     print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
           .format(top1=metric_logger.meters['Acc@1'], top5=metric_logger.meters['Acc@5'], losses=metric_logger.meters['Loss']))
+    
+    if trigger is not None:
+        print('* Acc@1 {top1.global_avg:.3f} ASR {top5.global_avg:.3f}'
+          .format(top1=metric_logger.meters['ASR'], top5=metric_logger.meters['ACC'], losses=metric_logger.meters['Loss']))
 
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
 @torch.no_grad()
 def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, data_loader, 
-                    device, task_id=-1, class_mask=None, acc_matrix=None, args=None,):
+                    device, task_id=-1, class_mask=None, acc_matrix=None, args=None,trigger = None):
     stat_matrix = np.zeros((3, args.num_tasks)) # 3 for Acc@1, Acc@5, Loss
 
     for i in range(task_id+1):
         test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
                             device=device, task_id=i, class_mask=class_mask, args=args)
+
+        test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
+                            device=device, task_id=i, class_mask=class_mask, args=args,trigger=trigger)
+        
 
         stat_matrix[0, i] = test_stats['Acc@1']
         stat_matrix[1, i] = test_stats['Acc@5']
@@ -220,17 +241,17 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
     
     trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
-    criterion_trigger = torch.nn.BCELoss().to(device)
-    optimizer_trigger = torch.optim.RAdam([trigger],lr=0.01)
+    criterion_trigger = torch.nn.BCELoss()
+    optimizer_trigger = torch.optim.RAdam([trigger],lr=0.001)
 
-    p_task_id = 0
+    p_task_id = 9
 
     for epoch in range(30):
 
         trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                         data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+                                        set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
             
 
     for task_id in range(args.num_tasks):
@@ -283,10 +304,6 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             optimizer = create_optimizer(args, model)
         
         
-
-        
-        
-        
         for epoch in range(args.epochs):            
                        
             train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
@@ -294,7 +311,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
                                         set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
             
-            trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+            trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                             data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
                             device=device, epoch=epoch, max_norm=args.clip_grad, 
                             set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=trigger)
@@ -303,7 +320,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 lr_scheduler.step(epoch)
 
         test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
-                                    task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args)
+                                    task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args,trigger=trigger)
         if args.output_dir and utils.is_main_process():
             Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
             

@@ -1,0 +1,128 @@
+### Starting TaskPrologue of job 924984 on tg072 at Sun 03 Nov 2024 12:35:24 PM CET
+Running on cores 2-3,10-11,18-19,26-27 with governor ondemand
+Sun Nov  3 12:35:24 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-32GB           On  |   00000000:3B:00.0 Off |                    0 |
+| N/A   37C    P0             30W /  250W |       1MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+| distributed init (rank 0): env://
+Files already downloaded and verified
+Files already downloaded and verified
+Creating original model: vit_base_patch16_224
+Creating model: vit_base_patch16_224
+Namespace(aa=None, batch_size=16, batchwise_prompt=True, clip_grad=1.0, color_jitter=None, cooldown_epochs=10, data_path='./local_datasets/', dataset='Split-CIFAR100', decay_epochs=30, decay_rate=0.1, device='cuda', dist_backend='nccl', dist_url='env://', distributed=False, drop=0.0, drop_path=0.0, embedding_key='cls', epochs=5, eval=False, freeze=['blocks', 'patch_embed', 'cls_token', 'norm', 'pos_embed'], global_pool='token', gpu=0, head_type='prompt', initializer='uniform', input_size=224, length=5, lr=0.03, lr_noise=None, lr_noise_pct=0.67, lr_noise_std=1.0, min_lr=1e-05, model='vit_base_patch16_224', momentum=0.9, nb_classes=100, num_tasks=10, num_workers=4, opt='adam', opt_betas=(0.9, 0.999), opt_eps=1e-08, output_dir='./output', patience_epochs=10, pin_mem=True, predefined_key='', pretrained=True, print_freq=10, prompt_key=True, prompt_key_init='uniform', prompt_pool=True, pull_constraint=True, pull_constraint_coeff=0.1, rank=0, recount=1, reinit_optimizer=True, remode='pixel', reprob=0.0, sched='constant', seed=42, shared_prompt_key=False, shared_prompt_pool=False, shuffle=False, size=10, smoothing=0.1, subparser_name='cifar100_l2p', task_inc=False, top_k=5, train_interpolation='bicubic', train_mask=True, unscale_lr=True, use_prompt_mask=False, warmup_epochs=5, warmup_lr=1e-06, weight_decay=0.0, world_size=1)
+number of params: 122980
+Start training for 5 epochs
+Test: [Task 1]  [ 0/63]  eta: 0:02:17  Loss: 4.6194 (4.6194)  Acc@1: 0.0000 (0.0000)  Acc@5: 0.0000 (0.0000)  time: 2.1756  data: 0.4017  max mem: 828
+Test: [Task 1]  [10/63]  eta: 0:00:16  Loss: 4.5944 (4.5939)  Acc@1: 0.0000 (0.5682)  Acc@5: 6.2500 (6.2500)  time: 0.3022  data: 0.0368  max mem: 829
+Test: [Task 1]  [20/63]  eta: 0:00:09  Loss: 4.5942 (4.5956)  Acc@1: 0.0000 (0.8929)  Acc@5: 6.2500 (7.1429)  time: 0.1148  data: 0.0003  max mem: 829
+Test: [Task 1]  [30/63]  eta: 0:00:05  Loss: 4.5935 (4.5916)  Acc@1: 0.0000 (0.8065)  Acc@5: 6.2500 (6.4516)  time: 0.1148  data: 0.0002  max mem: 829
+Test: [Task 1]  [40/63]  eta: 0:00:03  Loss: 4.5979 (4.5956)  Acc@1: 0.0000 (0.7622)  Acc@5: 6.2500 (6.7073)  time: 0.1149  data: 0.0002  max mem: 829
+Test: [Task 1]  [50/63]  eta: 0:00:02  Loss: 4.6026 (4.5943)  Acc@1: 0.0000 (0.7353)  Acc@5: 6.2500 (6.7402)  time: 0.1151  data: 0.0002  max mem: 829
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 4.5811 (4.5928)  Acc@1: 0.0000 (1.1270)  Acc@5: 6.2500 (7.0697)  time: 0.1151  data: 0.0002  max mem: 829
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 4.5882 (4.5931)  Acc@1: 0.0000 (1.1000)  Acc@5: 6.2500 (7.0000)  time: 0.1137  data: 0.0002  max mem: 829
+Test: [Task 1] Total time: 0:00:09 (0.1480 s / it)
+* Acc@1 1.100 Acc@5 7.000 loss 4.593
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "main.py", line 165, in <module>
+[rank0]:     main(args)
+[rank0]:   File "main.py", line 135, in main
+[rank0]:     train_and_evaluate(model, model_without_ddp, original_model,
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/engine.py", line 324, in train_and_evaluate
+[rank0]:     test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
+[rank0]:   File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/engine.py", line 212, in evaluate_till_now
+[rank0]:     test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
+[rank0]:   File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/engine.py", line 180, in evaluate
+[rank0]:     ASR = accuracy(logits[p_index], target_p[p_index], topk=(1,))[0]
+[rank0]:   File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/timm/utils/metrics.py", line 31, in accuracy
+[rank0]:     correct = pred.eq(target.reshape(1, -1).expand_as(pred))
+[rank0]: RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
+/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py:208: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+E1103 12:36:04.153944 140421268277056 torch/distributed/elastic/multiprocessing/api.py:833] failed (exitcode: 1) local_rank: 0 (pid: 1850372) of binary: /home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/bin/python
+Traceback (most recent call last):
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 208, in <module>
+    main()
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 204, in main
+    launch(args)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py", line 189, in launch
+    run(args)
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/run.py", line 892, in run
+    elastic_launch(
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 133, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2024-11-03_12:36:04
+  host      : tg072.rrze.uni-erlangen.de
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 1850372)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+=== JOB_STATISTICS ===
+=== current date     : Sun 03 Nov 2024 12:36:04 PM CET
+= Job-ID             : 924984 on tinygpu
+= Job-Name           : l2p
+= Job-Command        : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/train_cifar100_l2p.sh
+= Initial workdir    : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor
+= Queue/Partition    : v100
+= Slurm account      : iwi1 with QOS=normal
+= Requested resources:  for 1-00:00:00
+= Elapsed runtime    : 00:00:44
+= Total RAM usage    : 1.7 GiB of requested  GiB (%)   
+= Node list          : tg072
+= Subm/Elig/Start/End: 2024-11-03T12:35:19 / 2024-11-03T12:35:19 / 2024-11-03T12:35:20 / 2024-11-03T12:36:04
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc           83.2G   104.9G   209.7G        N/A      80K     500K   1,000K        N/A    
+    /home/vault          0.0K  1048.6G  2097.2G        N/A       1      200K     400K        N/A    
+    /home/woody         17.9G  1000.0G  1500.0G        N/A     124K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+Tesla V100-PCIE-32GB, 00000000:3B:00.0, 1850372, 30 %, 10 %, 1874 MiB, 24397 ms
