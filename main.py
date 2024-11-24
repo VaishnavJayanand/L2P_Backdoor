@@ -89,6 +89,14 @@ def main(args):
 
     print(args)
 
+    # args.eval = True
+    # args.use_trigger = False
+
+    if args.eval:
+        if args.use_trigger:
+            print('trigger loaded',flush=True)
+            trigger = torch.load('trigger.pt')
+
     if args.eval:
         acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
@@ -101,8 +109,13 @@ def main(args):
             else:
                 print('No checkpoint found at:', checkpoint_path)
                 return
-            _ = evaluate_till_now(model, original_model, data_loader, device, 
-                                            task_id, class_mask, acc_matrix, args,)
+            
+            if args.use_trigger:
+                _ = evaluate_till_now(model, original_model, data_loader, device, 
+                                            task_id, class_mask, acc_matrix, args,trigger)
+            else:
+                _ = evaluate_till_now(model, original_model, data_loader, device, 
+                                            task_id, class_mask, acc_matrix, args)
         
         return
 
@@ -141,7 +154,16 @@ def main(args):
     print(f"Total training time: {total_time_str}")
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser('L2P training and evaluation configs')
+
+    # import pickle
+
+    # with open('filename.pickle', 'wb') as handle:
+    #     pickle.dump(parser, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # exit(0)
+
     config = parser.parse_known_args()[-1][0]
 
     subparser = parser.add_subparsers(dest='subparser_name')

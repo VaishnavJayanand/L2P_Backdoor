@@ -1,0 +1,637 @@
+### Starting TaskPrologue of job 928460 on tg073 at Mon 11 Nov 2024 09:31:47 AM CET
+Running on cores 0,3,8,11,16,19,24,27 with governor ondemand
+Mon Nov 11 09:31:47 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-32GB           On  |   00000000:18:00.0 Off |                    0 |
+| N/A   29C    P0             26W /  250W |       1MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+| distributed init (rank 0): env://
+Files already downloaded and verified
+Files already downloaded and verified
+Creating original model: vit_base_patch16_224
+Creating model: vit_base_patch16_224
+Namespace(aa=None, batch_size=16, batchwise_prompt=True, clip_grad=1.0, color_jitter=None, cooldown_epochs=10, data_path='./local_datasets/', dataset='Split-CIFAR100', decay_epochs=30, decay_rate=0.1, device='cuda', dist_backend='nccl', dist_url='env://', distributed=False, drop=0.0, drop_path=0.0, embedding_key='cls', epochs=5, eval=False, freeze=['blocks', 'patch_embed', 'cls_token', 'norm', 'pos_embed'], global_pool='token', gpu=0, head_type='prompt', initializer='uniform', input_size=224, length=5, lr=0.03, lr_noise=None, lr_noise_pct=0.67, lr_noise_std=1.0, min_lr=1e-05, model='vit_base_patch16_224', momentum=0.9, nb_classes=100, num_tasks=10, num_workers=4, opt='adam', opt_betas=(0.9, 0.999), opt_eps=1e-08, output_dir='./output', p_task_id=0, patience_epochs=10, pin_mem=True, poison_rate=0.1, predefined_key='', pretrained=True, print_freq=10, prompt_key=True, prompt_key_init='uniform', prompt_pool=True, pull_constraint=True, pull_constraint_coeff=0.1, rank=0, recount=1, reinit_optimizer=True, remode='pixel', reprob=0.0, sched='constant', seed=42, shared_prompt_key=False, shared_prompt_pool=False, shuffle=False, size=10, smoothing=0.1, subparser_name='cifar100_l2p', task_inc=False, top_k=5, train_interpolation='bicubic', train_mask=True, unscale_lr=True, use_prompt_mask=False, use_trigger=True, warmup_epochs=5, warmup_lr=1e-06, weight_decay=0.0, world_size=1)
+trigger loaded
+main.py:98: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  trigger = torch.load('trigger.pt')
+Loading checkpoint from: ./output/checkpoint/task1_checkpoint.pth
+main.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path)
+Test: [Task 1]  [ 0/63]  eta: 0:02:16  Loss: 5.3978 (5.3978)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 2.1674  data: 0.4434  max mem: 1157
+Test: [Task 1]  [10/63]  eta: 0:00:16  Loss: 5.3978 (5.6099)  ASR: 1.0000 (0.9880)  ACC: 1.0000 (0.9677)  p_index: 8.0000 (7.5455)  c_index: 8.0000 (8.4545)  time: 0.3093  data: 0.0406  max mem: 1158
+Test: [Task 1]  [20/63]  eta: 0:00:09  Loss: 5.4403 (6.0572)  ASR: 1.0000 (0.9943)  ACC: 1.0000 (0.9568)  p_index: 8.0000 (8.2857)  c_index: 8.0000 (7.7143)  time: 0.1201  data: 0.0003  max mem: 1158
+Test: [Task 1]  [30/63]  eta: 0:00:06  Loss: 6.3481 (5.9478)  ASR: 1.0000 (0.9961)  ACC: 1.0000 (0.9667)  p_index: 9.0000 (8.2581)  c_index: 7.0000 (7.7419)  time: 0.1169  data: 0.0003  max mem: 1158
+Test: [Task 1]  [40/63]  eta: 0:00:03  Loss: 5.5604 (5.8826)  ASR: 1.0000 (0.9970)  ACC: 1.0000 (0.9720)  p_index: 8.0000 (8.1463)  c_index: 8.0000 (7.8537)  time: 0.1169  data: 0.0003  max mem: 1158
+Test: [Task 1]  [50/63]  eta: 0:00:02  Loss: 6.4568 (5.9802)  ASR: 1.0000 (0.9976)  ACC: 1.0000 (0.9698)  p_index: 8.0000 (8.2157)  c_index: 8.0000 (7.7843)  time: 0.1167  data: 0.0003  max mem: 1158
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 5.8422 (5.8876)  ASR: 1.0000 (0.9979)  ACC: 1.0000 (0.9694)  p_index: 8.0000 (7.9672)  c_index: 8.0000 (8.0328)  time: 0.1168  data: 0.0002  max mem: 1158
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.7247 (5.8658)  ASR: 1.0000 (0.9980)  ACC: 1.0000 (0.9702)  p_index: 8.0000 (7.8889)  c_index: 8.0000 (7.9841)  time: 0.1156  data: 0.0002  max mem: 1158
+Test: [Task 1] Total time: 0:00:09 (0.1510 s / it)
+* ASR 0.998 ACC 0.970
+[Average accuracy till task1]	ASR: 0.9980	ACC: 0.9702	Loss: 5.8658
+Loading checkpoint from: ./output/checkpoint/task2_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:20  Loss: 8.9256 (8.9256)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.3195  data: 0.1920  max mem: 1323
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 6.7636 (6.9637)  ASR: 1.0000 (0.9900)  ACC: 1.0000 (0.9342)  p_index: 10.0000 (9.0909)  c_index: 6.0000 (6.9091)  time: 0.1354  data: 0.0177  max mem: 1323
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 6.2078 (6.7359)  ASR: 1.0000 (0.9944)  ACC: 0.8889 (0.9172)  p_index: 8.0000 (8.5238)  c_index: 7.0000 (7.4762)  time: 0.1170  data: 0.0003  max mem: 1323
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 6.3230 (6.5077)  ASR: 1.0000 (0.9962)  ACC: 0.9000 (0.9153)  p_index: 8.0000 (8.3871)  c_index: 8.0000 (7.6129)  time: 0.1171  data: 0.0003  max mem: 1323
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.4945 (6.4616)  ASR: 1.0000 (0.9971)  ACC: 0.9091 (0.9204)  p_index: 8.0000 (8.3415)  c_index: 8.0000 (7.6585)  time: 0.1170  data: 0.0003  max mem: 1323
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 6.4945 (6.3568)  ASR: 1.0000 (0.9976)  ACC: 1.0000 (0.9298)  p_index: 8.0000 (8.1765)  c_index: 8.0000 (7.8235)  time: 0.1167  data: 0.0002  max mem: 1323
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 6.2210 (6.4358)  ASR: 1.0000 (0.9980)  ACC: 1.0000 (0.9362)  p_index: 8.0000 (8.2951)  c_index: 8.0000 (7.7049)  time: 0.1166  data: 0.0002  max mem: 1323
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 6.0964 (6.3969)  ASR: 1.0000 (0.9981)  ACC: 1.0000 (0.9380)  p_index: 7.0000 (8.1905)  c_index: 8.0000 (7.6825)  time: 0.1138  data: 0.0002  max mem: 1323
+Test: [Task 1] Total time: 0:00:07 (0.1200 s / it)
+* ASR 0.998 ACC 0.938
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 3.7458 (3.7458)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9091)  p_index: 5.0000 (5.0000)  c_index: 11.0000 (11.0000)  time: 0.2798  data: 0.1604  max mem: 1323
+Test: [Task 2]  [10/63]  eta: 0:00:06  Loss: 5.8343 (5.8651)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9419)  p_index: 8.0000 (8.1818)  c_index: 8.0000 (7.8182)  time: 0.1314  data: 0.0148  max mem: 1323
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.8889 (5.9303)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9512)  p_index: 8.0000 (8.1905)  c_index: 7.0000 (7.8095)  time: 0.1166  data: 0.0002  max mem: 1323
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.2227 (5.7554)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9440)  p_index: 7.0000 (7.9355)  c_index: 9.0000 (8.0645)  time: 0.1167  data: 0.0002  max mem: 1323
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.1819 (5.7358)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9514)  p_index: 7.0000 (7.9756)  c_index: 9.0000 (8.0244)  time: 0.1167  data: 0.0002  max mem: 1323
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.4270 (5.7494)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9438)  p_index: 7.0000 (7.9804)  c_index: 8.0000 (8.0196)  time: 0.1168  data: 0.0002  max mem: 1323
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.4896 (5.7405)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9488)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1168  data: 0.0002  max mem: 1323
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.4896 (5.7551)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9498)  p_index: 8.0000 (7.9683)  c_index: 7.0000 (7.9048)  time: 0.1140  data: 0.0002  max mem: 1323
+Test: [Task 2] Total time: 0:00:07 (0.1193 s / it)
+* ASR 1.000 ACC 0.950
+[Average accuracy till task2]	ASR: 0.9990	ACC: 0.9439	Loss: 6.0760	Forgetting: 0.0000	Backward: 0.0001
+Loading checkpoint from: ./output/checkpoint/task3_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:17  Loss: 7.3727 (7.3727)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2773  data: 0.1585  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:06  Loss: 5.7293 (5.9312)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8696)  p_index: 7.0000 (7.6364)  c_index: 9.0000 (8.3636)  time: 0.1316  data: 0.0147  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 5.7293 (6.3386)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.9000)  p_index: 7.0000 (7.9048)  c_index: 8.0000 (8.0952)  time: 0.1171  data: 0.0003  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 6.3879 (6.5633)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8866)  p_index: 8.0000 (8.3226)  c_index: 7.0000 (7.6774)  time: 0.1172  data: 0.0002  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.1297 (6.2065)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8912)  p_index: 8.0000 (7.9268)  c_index: 8.0000 (8.0732)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 5.4670 (6.2590)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8932)  p_index: 7.0000 (7.9216)  c_index: 9.0000 (8.0784)  time: 0.1172  data: 0.0002  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 5.7915 (6.2361)  ASR: 1.0000 (1.0000)  ACC: 0.9000 (0.8992)  p_index: 8.0000 (7.8689)  c_index: 8.0000 (8.1311)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.4670 (6.1837)  ASR: 1.0000 (1.0000)  ACC: 0.9000 (0.9004)  p_index: 7.0000 (7.7460)  c_index: 8.0000 (8.1270)  time: 0.1143  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1197 s / it)
+* ASR 1.000 ACC 0.900
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 4.9090 (4.9090)  ASR: 1.0000 (1.0000)  ACC: 0.9000 (0.9000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2773  data: 0.1574  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:06  Loss: 5.9376 (6.0674)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9765)  p_index: 8.0000 (8.2727)  c_index: 8.0000 (7.7273)  time: 0.1316  data: 0.0145  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.9376 (6.0487)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9515)  p_index: 8.0000 (8.1429)  c_index: 8.0000 (7.8571)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.8437 (5.9968)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.9431)  p_index: 8.0000 (8.0645)  c_index: 8.0000 (7.9355)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.7534 (6.0315)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9441)  p_index: 8.0000 (8.1463)  c_index: 8.0000 (7.8537)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.7159 (5.9631)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9386)  p_index: 8.0000 (8.0196)  c_index: 8.0000 (7.9804)  time: 0.1171  data: 0.0002  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.4285 (5.9065)  ASR: 1.0000 (0.9979)  ACC: 0.9091 (0.9391)  p_index: 7.0000 (7.9180)  c_index: 8.0000 (8.0820)  time: 0.1170  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.4975 (5.9278)  ASR: 1.0000 (0.9980)  ACC: 0.9091 (0.9384)  p_index: 7.0000 (7.8889)  c_index: 8.0000 (7.9841)  time: 0.1142  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1195 s / it)
+* ASR 0.998 ACC 0.938
+Test: [Task 3]  [ 0/63]  eta: 0:00:18  Loss: 5.2843 (5.2843)  ASR: 0.8571 (0.8571)  ACC: 1.0000 (1.0000)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2902  data: 0.1697  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 5.3323 (5.6288)  ASR: 1.0000 (0.9882)  ACC: 1.0000 (0.9231)  p_index: 7.0000 (7.7273)  c_index: 9.0000 (8.2727)  time: 0.1334  data: 0.0156  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 5.1920 (5.5413)  ASR: 1.0000 (0.9938)  ACC: 0.8889 (0.9148)  p_index: 7.0000 (7.6190)  c_index: 8.0000 (8.3810)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.1920 (5.5279)  ASR: 1.0000 (0.9958)  ACC: 0.9000 (0.9189)  p_index: 7.0000 (7.6452)  c_index: 8.0000 (8.3548)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.3915 (5.5908)  ASR: 1.0000 (0.9969)  ACC: 0.9091 (0.9142)  p_index: 8.0000 (7.7561)  c_index: 8.0000 (8.2439)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.2947 (5.6018)  ASR: 1.0000 (0.9850)  ACC: 0.8889 (0.9133)  p_index: 8.0000 (7.8627)  c_index: 8.0000 (8.1373)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.6880 (5.6614)  ASR: 1.0000 (0.9854)  ACC: 0.8889 (0.9091)  p_index: 8.0000 (7.8852)  c_index: 8.0000 (8.1148)  time: 0.1177  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 5.4646 (5.6732)  ASR: 1.0000 (0.9858)  ACC: 0.8889 (0.9073)  p_index: 8.0000 (7.8254)  c_index: 8.0000 (8.0476)  time: 0.1149  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1205 s / it)
+* ASR 0.986 ACC 0.907
+[Average accuracy till task3]	ASR: 0.9946	ACC: 0.9154	Loss: 5.9282	Forgetting: 0.0010	Backward: -0.0000
+Loading checkpoint from: ./output/checkpoint/task4_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:16  Loss: 8.4930 (8.4930)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2652  data: 0.1444  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:06  Loss: 5.3959 (5.6520)  ASR: 1.0000 (0.9878)  ACC: 0.9000 (0.8936)  p_index: 7.0000 (7.4545)  c_index: 9.0000 (8.5455)  time: 0.1309  data: 0.0134  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 5.5473 (5.9146)  ASR: 1.0000 (0.9939)  ACC: 0.9000 (0.8960)  p_index: 8.0000 (7.7619)  c_index: 8.0000 (8.2381)  time: 0.1174  data: 0.0003  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 5.7973 (5.9695)  ASR: 1.0000 (0.9960)  ACC: 0.9167 (0.9076)  p_index: 8.0000 (7.9677)  c_index: 8.0000 (8.0323)  time: 0.1175  data: 0.0003  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.0174 (6.0168)  ASR: 1.0000 (0.9969)  ACC: 0.8889 (0.9027)  p_index: 8.0000 (7.9756)  c_index: 8.0000 (8.0244)  time: 0.1177  data: 0.0003  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 5.7041 (5.9399)  ASR: 1.0000 (0.9975)  ACC: 0.9167 (0.9019)  p_index: 7.0000 (7.8039)  c_index: 8.0000 (8.1961)  time: 0.1177  data: 0.0003  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 5.4028 (5.8960)  ASR: 1.0000 (0.9979)  ACC: 1.0000 (0.9050)  p_index: 7.0000 (7.7213)  c_index: 9.0000 (8.2787)  time: 0.1177  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.4028 (5.9262)  ASR: 1.0000 (0.9979)  ACC: 1.0000 (0.9070)  p_index: 7.0000 (7.6825)  c_index: 9.0000 (8.1905)  time: 0.1150  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1200 s / it)
+* ASR 0.998 ACC 0.907
+Test: [Task 2]  [ 0/63]  eta: 0:00:18  Loss: 4.0661 (4.0661)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2862  data: 0.1659  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 5.4919 (5.6616)  ASR: 1.0000 (0.9885)  ACC: 0.8889 (0.8989)  p_index: 8.0000 (7.9091)  c_index: 8.0000 (8.0909)  time: 0.1334  data: 0.0153  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.6112 (5.6137)  ASR: 1.0000 (0.9939)  ACC: 0.8750 (0.8547)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.1905)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.4765 (5.4636)  ASR: 1.0000 (0.9957)  ACC: 0.8889 (0.8826)  p_index: 7.0000 (7.4839)  c_index: 8.0000 (8.5161)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.8265 (5.6064)  ASR: 1.0000 (0.9968)  ACC: 0.9000 (0.8794)  p_index: 7.0000 (7.7073)  c_index: 8.0000 (8.2927)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.8551 (5.6329)  ASR: 1.0000 (0.9949)  ACC: 0.8000 (0.8738)  p_index: 9.0000 (7.7647)  c_index: 7.0000 (8.2353)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.1007 (5.5231)  ASR: 1.0000 (0.9936)  ACC: 0.8750 (0.8804)  p_index: 7.0000 (7.6393)  c_index: 9.0000 (8.3607)  time: 0.1178  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 4.9649 (5.4787)  ASR: 1.0000 (0.9937)  ACC: 0.8889 (0.8834)  p_index: 7.0000 (7.5714)  c_index: 9.0000 (8.3016)  time: 0.1150  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1206 s / it)
+* ASR 0.994 ACC 0.883
+Test: [Task 3]  [ 0/63]  eta: 0:00:18  Loss: 5.8485 (5.8485)  ASR: 0.8000 (0.8000)  ACC: 0.8333 (0.8333)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.2867  data: 0.1646  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 4.9691 (5.1955)  ASR: 1.0000 (0.9524)  ACC: 0.8889 (0.9130)  p_index: 7.0000 (7.6364)  c_index: 9.0000 (8.3636)  time: 0.1332  data: 0.0153  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 5.1735 (5.2700)  ASR: 1.0000 (0.9557)  ACC: 0.8889 (0.8989)  p_index: 7.0000 (7.5238)  c_index: 8.0000 (8.4762)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.3227 (5.2424)  ASR: 1.0000 (0.9614)  ACC: 0.8889 (0.9049)  p_index: 7.0000 (7.5161)  c_index: 8.0000 (8.4839)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.3393 (5.3141)  ASR: 1.0000 (0.9583)  ACC: 0.9167 (0.9070)  p_index: 7.0000 (7.6098)  c_index: 8.0000 (8.3902)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 4.9870 (5.1923)  ASR: 1.0000 (0.9553)  ACC: 0.9167 (0.9128)  p_index: 7.0000 (7.4510)  c_index: 9.0000 (8.5490)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 4.7573 (5.3333)  ASR: 1.0000 (0.9591)  ACC: 0.8889 (0.9061)  p_index: 7.0000 (7.6230)  c_index: 9.0000 (8.3770)  time: 0.1183  data: 0.0003  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 4.9460 (5.3648)  ASR: 1.0000 (0.9603)  ACC: 0.8750 (0.9061)  p_index: 7.0000 (7.5873)  c_index: 8.0000 (8.2857)  time: 0.1156  data: 0.0003  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1206 s / it)
+* ASR 0.960 ACC 0.906
+Test: [Task 4]  [ 0/63]  eta: 0:00:18  Loss: 4.3552 (4.3552)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2940  data: 0.1746  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 5.2072 (5.8014)  ASR: 1.0000 (0.9882)  ACC: 0.9000 (0.9011)  p_index: 7.0000 (7.7273)  c_index: 9.0000 (8.2727)  time: 0.1340  data: 0.0161  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 5.8213 (6.0295)  ASR: 1.0000 (0.9882)  ACC: 0.8889 (0.8802)  p_index: 8.0000 (8.0476)  c_index: 8.0000 (7.9524)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 5.6992 (5.9622)  ASR: 1.0000 (0.9920)  ACC: 0.8750 (0.8826)  p_index: 7.0000 (8.0323)  c_index: 8.0000 (7.9677)  time: 0.1183  data: 0.0003  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 5.2127 (5.7279)  ASR: 1.0000 (0.9906)  ACC: 0.9091 (0.9018)  p_index: 7.0000 (7.8049)  c_index: 9.0000 (8.1951)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.3672 (5.7673)  ASR: 1.0000 (0.9925)  ACC: 1.0000 (0.9036)  p_index: 8.0000 (7.8627)  c_index: 8.0000 (8.1373)  time: 0.1177  data: 0.0002  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.7672 (5.7711)  ASR: 1.0000 (0.9917)  ACC: 0.8889 (0.9032)  p_index: 8.0000 (7.8689)  c_index: 8.0000 (8.1311)  time: 0.1177  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.9836 (5.7810)  ASR: 1.0000 (0.9919)  ACC: 1.0000 (0.9055)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.0635)  time: 0.1150  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1207 s / it)
+* ASR 0.992 ACC 0.906
+[Average accuracy till task4]	ASR: 0.9859	ACC: 0.9005	Loss: 5.6377	Forgetting: 0.0113	Backward: -0.0106
+Loading checkpoint from: ./output/checkpoint/task5_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:18  Loss: 6.6883 (6.6883)  ASR: 1.0000 (1.0000)  ACC: 0.7143 (0.7143)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2906  data: 0.1693  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 6.2142 (6.0327)  ASR: 1.0000 (1.0000)  ACC: 0.8333 (0.8202)  p_index: 8.0000 (7.9091)  c_index: 8.0000 (8.0909)  time: 0.1337  data: 0.0157  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 5.9832 (6.1040)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8314)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.1905)  time: 0.1179  data: 0.0003  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 5.9832 (6.2512)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8300)  p_index: 8.0000 (8.0323)  c_index: 8.0000 (7.9677)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.5822 (6.3692)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8344)  p_index: 9.0000 (8.3415)  c_index: 7.0000 (7.6585)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 6.4523 (6.2937)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.8550)  p_index: 8.0000 (8.1569)  c_index: 7.0000 (7.8431)  time: 0.1178  data: 0.0003  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 6.0100 (6.3012)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.8667)  p_index: 8.0000 (8.1311)  c_index: 8.0000 (7.8689)  time: 0.1177  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 6.2624 (6.3399)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.8691)  p_index: 8.0000 (8.1111)  c_index: 8.0000 (7.7619)  time: 0.1149  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1205 s / it)
+* ASR 1.000 ACC 0.869
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 7.6021 (7.6021)  ASR: 1.0000 (1.0000)  ACC: 0.6000 (0.6000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2849  data: 0.1621  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 6.4052 (6.3118)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9103)  p_index: 9.0000 (8.9091)  c_index: 7.0000 (7.0909)  time: 0.1338  data: 0.0151  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.8722 (6.0292)  ASR: 1.0000 (0.9943)  ACC: 0.8889 (0.8696)  p_index: 8.0000 (8.3333)  c_index: 8.0000 (7.6667)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.7098 (5.8781)  ASR: 1.0000 (0.9960)  ACC: 0.8750 (0.8780)  p_index: 8.0000 (8.0645)  c_index: 8.0000 (7.9355)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.8001 (5.8951)  ASR: 1.0000 (0.9940)  ACC: 0.8750 (0.8677)  p_index: 8.0000 (8.0732)  c_index: 8.0000 (7.9268)  time: 0.1181  data: 0.0003  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.3357 (5.7779)  ASR: 1.0000 (0.9926)  ACC: 0.8000 (0.8620)  p_index: 7.0000 (7.9020)  c_index: 9.0000 (8.0980)  time: 0.1181  data: 0.0002  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.6703 (5.8505)  ASR: 1.0000 (0.9938)  ACC: 0.8571 (0.8671)  p_index: 7.0000 (7.9836)  c_index: 8.0000 (8.0164)  time: 0.1181  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.3357 (5.7916)  ASR: 1.0000 (0.9940)  ACC: 0.8750 (0.8671)  p_index: 7.0000 (7.8730)  c_index: 8.0000 (8.0000)  time: 0.1153  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1209 s / it)
+* ASR 0.994 ACC 0.867
+Test: [Task 3]  [ 0/63]  eta: 0:00:18  Loss: 7.2229 (7.2229)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.2944  data: 0.1754  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 6.2241 (5.8429)  ASR: 1.0000 (0.9780)  ACC: 0.8750 (0.8471)  p_index: 8.0000 (8.2727)  c_index: 8.0000 (7.7273)  time: 0.1339  data: 0.0162  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 6.0937 (5.8422)  ASR: 1.0000 (0.9822)  ACC: 0.8750 (0.8683)  p_index: 8.0000 (8.0476)  c_index: 8.0000 (7.9524)  time: 0.1179  data: 0.0002  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.5650 (5.6885)  ASR: 1.0000 (0.9753)  ACC: 0.8750 (0.8498)  p_index: 8.0000 (7.8387)  c_index: 8.0000 (8.1613)  time: 0.1179  data: 0.0002  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.5821 (5.7585)  ASR: 1.0000 (0.9815)  ACC: 0.8750 (0.8584)  p_index: 8.0000 (7.9024)  c_index: 8.0000 (8.0976)  time: 0.1179  data: 0.0002  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.5873 (5.7253)  ASR: 1.0000 (0.9777)  ACC: 0.8571 (0.8596)  p_index: 8.0000 (7.9020)  c_index: 8.0000 (8.0980)  time: 0.1180  data: 0.0002  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.3915 (5.7403)  ASR: 1.0000 (0.9753)  ACC: 0.8000 (0.8534)  p_index: 8.0000 (7.9508)  c_index: 8.0000 (8.0492)  time: 0.1179  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 5.3915 (5.7146)  ASR: 1.0000 (0.9758)  ACC: 0.8000 (0.8515)  p_index: 7.0000 (7.8571)  c_index: 8.0000 (8.0159)  time: 0.1151  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1207 s / it)
+* ASR 0.976 ACC 0.851
+Test: [Task 4]  [ 0/63]  eta: 0:00:18  Loss: 7.7969 (7.7969)  ASR: 1.0000 (1.0000)  ACC: 0.8333 (0.8333)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.2910  data: 0.1672  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 6.0095 (6.0594)  ASR: 1.0000 (0.9775)  ACC: 0.9091 (0.9080)  p_index: 8.0000 (8.0909)  c_index: 8.0000 (7.9091)  time: 0.1343  data: 0.0155  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 5.7085 (6.0647)  ASR: 1.0000 (0.9882)  ACC: 0.8889 (0.8855)  p_index: 8.0000 (8.0952)  c_index: 8.0000 (7.9048)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 5.6285 (5.8784)  ASR: 1.0000 (0.9918)  ACC: 0.8889 (0.8924)  p_index: 7.0000 (7.9032)  c_index: 8.0000 (8.0968)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 5.3745 (5.6930)  ASR: 1.0000 (0.9906)  ACC: 1.0000 (0.9112)  p_index: 8.0000 (7.7561)  c_index: 8.0000 (8.2439)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.3745 (5.6765)  ASR: 1.0000 (0.9924)  ACC: 1.0000 (0.9216)  p_index: 8.0000 (7.7451)  c_index: 8.0000 (8.2549)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.9583 (5.7787)  ASR: 1.0000 (0.9916)  ACC: 0.9091 (0.9096)  p_index: 8.0000 (7.8361)  c_index: 8.0000 (8.1639)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.7851 (5.7180)  ASR: 1.0000 (0.9918)  ACC: 1.0000 (0.9126)  p_index: 8.0000 (7.6984)  c_index: 8.0000 (8.1746)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1215 s / it)
+* ASR 0.992 ACC 0.913
+Test: [Task 5]  [ 0/63]  eta: 0:00:17  Loss: 6.5356 (6.5356)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2708  data: 0.1503  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:06  Loss: 5.9028 (5.6136)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8864)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1320  data: 0.0139  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 5.5557 (5.3880)  ASR: 1.0000 (0.9876)  ACC: 0.8750 (0.8971)  p_index: 7.0000 (7.6667)  c_index: 8.0000 (8.3333)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 5.6319 (5.5462)  ASR: 1.0000 (0.9918)  ACC: 0.9167 (0.9048)  p_index: 8.0000 (7.8710)  c_index: 8.0000 (8.1290)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 5.8290 (5.5987)  ASR: 1.0000 (0.9847)  ACC: 1.0000 (0.9058)  p_index: 8.0000 (7.9756)  c_index: 7.0000 (8.0244)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 5.5517 (5.6310)  ASR: 1.0000 (0.9855)  ACC: 1.0000 (0.9156)  p_index: 8.0000 (8.0980)  c_index: 8.0000 (7.9020)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.5717 (5.5574)  ASR: 1.0000 (0.9816)  ACC: 1.0000 (0.9119)  p_index: 7.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.5717 (5.5884)  ASR: 1.0000 (0.9821)  ACC: 1.0000 (0.9096)  p_index: 7.0000 (7.9683)  c_index: 8.0000 (7.9048)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1209 s / it)
+* ASR 0.982 ACC 0.910
+[Average accuracy till task5]	ASR: 0.9887	ACC: 0.8820	Loss: 5.8305	Forgetting: 0.0041	Backward: -0.0035
+Loading checkpoint from: ./output/checkpoint/task6_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:16  Loss: 6.0569 (6.0569)  ASR: 1.0000 (1.0000)  ACC: 0.7778 (0.7778)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2647  data: 0.1454  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:06  Loss: 6.0569 (5.7859)  ASR: 1.0000 (0.9880)  ACC: 0.8571 (0.8387)  p_index: 8.0000 (7.5455)  c_index: 8.0000 (8.4545)  time: 0.1315  data: 0.0134  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 6.4923 (6.2243)  ASR: 1.0000 (0.9882)  ACC: 0.8750 (0.8443)  p_index: 8.0000 (8.0476)  c_index: 7.0000 (7.9524)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 6.3129 (6.2320)  ASR: 1.0000 (0.9920)  ACC: 0.8889 (0.8531)  p_index: 9.0000 (8.0968)  c_index: 7.0000 (7.9032)  time: 0.1183  data: 0.0003  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.1432 (6.2367)  ASR: 1.0000 (0.9940)  ACC: 0.8571 (0.8483)  p_index: 8.0000 (8.1220)  c_index: 8.0000 (7.8780)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 5.8060 (6.1235)  ASR: 1.0000 (0.9950)  ACC: 0.8571 (0.8620)  p_index: 7.0000 (7.9020)  c_index: 9.0000 (8.0980)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 5.4285 (6.0369)  ASR: 1.0000 (0.9937)  ACC: 0.9091 (0.8703)  p_index: 7.0000 (7.7869)  c_index: 9.0000 (8.2131)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.4285 (6.1334)  ASR: 1.0000 (0.9939)  ACC: 0.9231 (0.8720)  p_index: 7.0000 (7.8095)  c_index: 9.0000 (8.0635)  time: 0.1154  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1205 s / it)
+* ASR 0.994 ACC 0.872
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 3.2689 (3.2689)  ASR: 1.0000 (1.0000)  ACC: 0.8333 (0.8333)  p_index: 4.0000 (4.0000)  c_index: 12.0000 (12.0000)  time: 0.2788  data: 0.1584  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 6.3052 (5.9946)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8621)  p_index: 9.0000 (8.0909)  c_index: 7.0000 (7.9091)  time: 0.1327  data: 0.0146  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 6.3052 (6.2797)  ASR: 1.0000 (0.9944)  ACC: 0.8571 (0.8616)  p_index: 9.0000 (8.4286)  c_index: 7.0000 (7.5714)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.9474 (6.0150)  ASR: 1.0000 (0.9960)  ACC: 0.8333 (0.8462)  p_index: 8.0000 (8.0323)  c_index: 8.0000 (7.9677)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.4148 (6.0530)  ASR: 1.0000 (0.9940)  ACC: 0.8571 (0.8536)  p_index: 7.0000 (8.1707)  c_index: 7.0000 (7.8293)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 6.2409 (6.2038)  ASR: 1.0000 (0.9930)  ACC: 0.8750 (0.8553)  p_index: 9.0000 (8.4118)  c_index: 7.0000 (7.5882)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 6.0532 (6.2467)  ASR: 1.0000 (0.9922)  ACC: 0.8889 (0.8565)  p_index: 8.0000 (8.4590)  c_index: 8.0000 (7.5410)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 6.0435 (6.2101)  ASR: 1.0000 (0.9924)  ACC: 0.8889 (0.8562)  p_index: 8.0000 (8.3651)  c_index: 7.0000 (7.5079)  time: 0.1158  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1210 s / it)
+* ASR 0.992 ACC 0.856
+Test: [Task 3]  [ 0/63]  eta: 0:00:18  Loss: 7.8526 (7.8526)  ASR: 0.9091 (0.9091)  ACC: 1.0000 (1.0000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2969  data: 0.1752  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 7.0554 (6.9186)  ASR: 1.0000 (0.9813)  ACC: 0.8333 (0.8116)  p_index: 10.0000 (9.7273)  c_index: 6.0000 (6.2727)  time: 0.1353  data: 0.0162  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 6.5708 (6.6285)  ASR: 1.0000 (0.9536)  ACC: 0.8333 (0.8169)  p_index: 10.0000 (9.2381)  c_index: 6.0000 (6.7619)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.8360 (6.2662)  ASR: 1.0000 (0.9628)  ACC: 0.8750 (0.8326)  p_index: 8.0000 (8.6774)  c_index: 8.0000 (7.3226)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.7873 (6.2379)  ASR: 1.0000 (0.9636)  ACC: 0.8889 (0.8528)  p_index: 8.0000 (8.7073)  c_index: 8.0000 (7.2927)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.6130 (6.0932)  ASR: 1.0000 (0.9608)  ACC: 0.8889 (0.8560)  p_index: 8.0000 (8.5098)  c_index: 8.0000 (7.4902)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.2959 (5.9793)  ASR: 1.0000 (0.9626)  ACC: 0.8750 (0.8590)  p_index: 7.0000 (8.3279)  c_index: 9.0000 (7.6721)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 5.2959 (6.0435)  ASR: 1.0000 (0.9636)  ACC: 0.8571 (0.8556)  p_index: 7.0000 (8.2857)  c_index: 9.0000 (7.5873)  time: 0.1158  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1217 s / it)
+* ASR 0.964 ACC 0.856
+Test: [Task 4]  [ 0/63]  eta: 0:00:18  Loss: 7.5811 (7.5811)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.2877  data: 0.1627  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 7.3030 (6.6606)  ASR: 1.0000 (0.9798)  ACC: 1.0000 (0.9351)  p_index: 10.0000 (9.0000)  c_index: 6.0000 (7.0000)  time: 0.1347  data: 0.0150  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 6.1436 (6.2049)  ASR: 1.0000 (0.9885)  ACC: 0.8889 (0.8642)  p_index: 8.0000 (8.2857)  c_index: 8.0000 (7.7143)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 6.1436 (6.3046)  ASR: 1.0000 (0.9924)  ACC: 0.8571 (0.8590)  p_index: 8.0000 (8.4516)  c_index: 8.0000 (7.5484)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 6.1386 (6.2029)  ASR: 1.0000 (0.9885)  ACC: 1.0000 (0.8835)  p_index: 9.0000 (8.4634)  c_index: 7.0000 (7.5366)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 6.1386 (6.3542)  ASR: 1.0000 (0.9909)  ACC: 1.0000 (0.8830)  p_index: 9.0000 (8.6275)  c_index: 7.0000 (7.3725)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.8842 (6.3193)  ASR: 1.0000 (0.9904)  ACC: 0.8889 (0.8750)  p_index: 8.0000 (8.5246)  c_index: 8.0000 (7.4754)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.7505 (6.3112)  ASR: 1.0000 (0.9906)  ACC: 0.8889 (0.8742)  p_index: 7.0000 (8.4286)  c_index: 8.0000 (7.4444)  time: 0.1160  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1216 s / it)
+* ASR 0.991 ACC 0.874
+Test: [Task 5]  [ 0/63]  eta: 0:00:17  Loss: 3.5489 (3.5489)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9091)  p_index: 5.0000 (5.0000)  c_index: 11.0000 (11.0000)  time: 0.2809  data: 0.1621  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:07  Loss: 5.0739 (4.9876)  ASR: 1.0000 (0.9870)  ACC: 0.9091 (0.9091)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.1332  data: 0.0149  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 5.7066 (5.7071)  ASR: 1.0000 (0.9822)  ACC: 1.0000 (0.9281)  p_index: 8.0000 (8.0476)  c_index: 8.0000 (7.9524)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 5.9979 (5.6488)  ASR: 1.0000 (0.9838)  ACC: 1.0000 (0.9277)  p_index: 8.0000 (7.9677)  c_index: 8.0000 (8.0323)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 5.7449 (5.7358)  ASR: 1.0000 (0.9758)  ACC: 1.0000 (0.9231)  p_index: 8.0000 (8.0732)  c_index: 8.0000 (7.9268)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 5.5827 (5.6471)  ASR: 1.0000 (0.9779)  ACC: 1.0000 (0.9193)  p_index: 8.0000 (7.9804)  c_index: 7.0000 (8.0196)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.6134 (5.7369)  ASR: 1.0000 (0.9757)  ACC: 0.8889 (0.9129)  p_index: 8.0000 (8.0984)  c_index: 7.0000 (7.9016)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.5141 (5.6976)  ASR: 1.0000 (0.9761)  ACC: 0.8889 (0.9095)  p_index: 8.0000 (7.9841)  c_index: 7.0000 (7.8889)  time: 0.1156  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1208 s / it)
+* ASR 0.976 ACC 0.909
+Test: [Task 6]  [ 0/63]  eta: 0:00:18  Loss: 3.9105 (3.9105)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2897  data: 0.1688  max mem: 1324
+Test: [Task 6]  [10/63]  eta: 0:00:07  Loss: 5.1210 (5.3900)  ASR: 1.0000 (0.9756)  ACC: 0.8000 (0.8298)  p_index: 7.0000 (7.4545)  c_index: 9.0000 (8.5455)  time: 0.1340  data: 0.0155  max mem: 1324
+Test: [Task 6]  [20/63]  eta: 0:00:05  Loss: 5.6504 (5.6639)  ASR: 1.0000 (0.9880)  ACC: 0.8000 (0.8047)  p_index: 8.0000 (7.9524)  c_index: 8.0000 (8.0476)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 6]  [30/63]  eta: 0:00:04  Loss: 5.8524 (5.7288)  ASR: 1.0000 (0.9919)  ACC: 0.8182 (0.8112)  p_index: 8.0000 (7.9677)  c_index: 7.0000 (8.0323)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 6]  [40/63]  eta: 0:00:02  Loss: 5.9600 (5.7468)  ASR: 1.0000 (0.9939)  ACC: 0.8000 (0.7939)  p_index: 9.0000 (7.9512)  c_index: 7.0000 (8.0488)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 6]  [50/63]  eta: 0:00:01  Loss: 6.0735 (5.7523)  ASR: 1.0000 (0.9951)  ACC: 0.8182 (0.8079)  p_index: 9.0000 (8.0392)  c_index: 7.0000 (7.9608)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 6]  [60/63]  eta: 0:00:00  Loss: 6.2195 (5.8636)  ASR: 1.0000 (0.9940)  ACC: 0.8571 (0.8140)  p_index: 9.0000 (8.2459)  c_index: 7.0000 (7.7541)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 6]  [62/63]  eta: 0:00:00  Loss: 6.2195 (5.8158)  ASR: 1.0000 (0.9922)  ACC: 0.8571 (0.8169)  p_index: 9.0000 (8.1587)  c_index: 7.0000 (7.7143)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 6] Total time: 0:00:07 (0.1211 s / it)
+* ASR 0.992 ACC 0.817
+[Average accuracy till task6]	ASR: 0.9848	ACC: 0.8641	Loss: 6.0353	Forgetting: 0.0086	Backward: -0.0082
+Loading checkpoint from: ./output/checkpoint/task7_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:18  Loss: 4.8763 (4.8763)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2859  data: 0.1665  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 6.4410 (6.4399)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8488)  p_index: 8.0000 (8.1818)  c_index: 8.0000 (7.8182)  time: 0.1335  data: 0.0154  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 6.4410 (6.3798)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8434)  p_index: 8.0000 (8.0952)  c_index: 8.0000 (7.9048)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 7.0228 (6.5064)  ASR: 1.0000 (0.9961)  ACC: 0.8333 (0.8397)  p_index: 10.0000 (8.3548)  c_index: 6.0000 (7.6452)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.2933 (6.3779)  ASR: 1.0000 (0.9971)  ACC: 0.8000 (0.8444)  p_index: 8.0000 (8.3171)  c_index: 7.0000 (7.6829)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 6.2167 (6.3998)  ASR: 1.0000 (0.9976)  ACC: 0.8571 (0.8489)  p_index: 8.0000 (8.2157)  c_index: 8.0000 (7.7843)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 6.4140 (6.5432)  ASR: 1.0000 (0.9961)  ACC: 0.8750 (0.8581)  p_index: 8.0000 (8.3770)  c_index: 8.0000 (7.6230)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.9155 (6.4827)  ASR: 1.0000 (0.9962)  ACC: 0.8889 (0.8601)  p_index: 8.0000 (8.2698)  c_index: 8.0000 (7.6032)  time: 0.1158  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1211 s / it)
+* ASR 0.996 ACC 0.860
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 8.0743 (8.0743)  ASR: 1.0000 (1.0000)  ACC: 0.6000 (0.6000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2736  data: 0.1531  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 6.4472 (6.1358)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8675)  p_index: 9.0000 (8.4545)  c_index: 7.0000 (7.5455)  time: 0.1326  data: 0.0142  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.7020 (6.2462)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8025)  p_index: 8.0000 (8.5238)  c_index: 7.0000 (7.4762)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 6.7227 (6.3200)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8326)  p_index: 9.0000 (8.6774)  c_index: 6.0000 (7.3226)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 6.4275 (6.3549)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8361)  p_index: 9.0000 (8.7073)  c_index: 7.0000 (7.2927)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 6.1691 (6.2376)  ASR: 1.0000 (0.9954)  ACC: 0.8571 (0.8333)  p_index: 8.0000 (8.5882)  c_index: 8.0000 (7.4118)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.7778 (6.2878)  ASR: 1.0000 (0.9962)  ACC: 0.8000 (0.8396)  p_index: 8.0000 (8.6393)  c_index: 7.0000 (7.3607)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.7778 (6.2539)  ASR: 1.0000 (0.9963)  ACC: 0.8333 (0.8373)  p_index: 8.0000 (8.5556)  c_index: 7.0000 (7.3175)  time: 0.1156  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1210 s / it)
+* ASR 0.996 ACC 0.837
+Test: [Task 3]  [ 0/63]  eta: 0:00:18  Loss: 6.1642 (6.1642)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2990  data: 0.1770  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 6.0341 (6.0899)  ASR: 1.0000 (0.9574)  ACC: 0.8750 (0.8415)  p_index: 9.0000 (8.5455)  c_index: 7.0000 (7.4545)  time: 0.1348  data: 0.0163  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 5.6184 (5.5920)  ASR: 1.0000 (0.9451)  ACC: 0.8750 (0.8256)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.1905)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.5419 (5.7429)  ASR: 1.0000 (0.9598)  ACC: 0.8571 (0.8300)  p_index: 8.0000 (8.0323)  c_index: 8.0000 (7.9677)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.8266 (5.7131)  ASR: 1.0000 (0.9696)  ACC: 0.8750 (0.8502)  p_index: 8.0000 (8.0244)  c_index: 8.0000 (7.9756)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.2466 (5.6311)  ASR: 1.0000 (0.9678)  ACC: 0.8889 (0.8617)  p_index: 7.0000 (7.9216)  c_index: 8.0000 (8.0784)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.4210 (5.6990)  ASR: 1.0000 (0.9670)  ACC: 0.8889 (0.8574)  p_index: 7.0000 (7.9508)  c_index: 8.0000 (8.0492)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 5.3386 (5.6770)  ASR: 1.0000 (0.9676)  ACC: 0.8889 (0.8557)  p_index: 7.0000 (7.8413)  c_index: 8.0000 (8.0317)  time: 0.1155  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1212 s / it)
+* ASR 0.968 ACC 0.856
+Test: [Task 4]  [ 0/63]  eta: 0:00:17  Loss: 5.1229 (5.1229)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8889)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2824  data: 0.1626  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 5.5344 (5.8659)  ASR: 1.0000 (0.9882)  ACC: 0.8889 (0.8571)  p_index: 7.0000 (7.7273)  c_index: 9.0000 (8.2727)  time: 0.1332  data: 0.0150  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 6.0188 (6.0566)  ASR: 1.0000 (0.9882)  ACC: 0.8889 (0.8443)  p_index: 8.0000 (8.0476)  c_index: 8.0000 (7.9524)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 6.4188 (6.1413)  ASR: 1.0000 (0.9921)  ACC: 0.7778 (0.8306)  p_index: 9.0000 (8.1935)  c_index: 7.0000 (7.8065)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 5.6933 (5.9436)  ASR: 1.0000 (0.9909)  ACC: 0.8750 (0.8589)  p_index: 8.0000 (8.0488)  c_index: 8.0000 (7.9512)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.5978 (6.0051)  ASR: 1.0000 (0.9928)  ACC: 0.9167 (0.8703)  p_index: 8.0000 (8.1373)  c_index: 8.0000 (7.8627)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.7040 (5.9481)  ASR: 1.0000 (0.9898)  ACC: 0.8750 (0.8598)  p_index: 8.0000 (8.0492)  c_index: 8.0000 (7.9508)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.7664 (6.0073)  ASR: 1.0000 (0.9901)  ACC: 0.8750 (0.8603)  p_index: 8.0000 (8.0317)  c_index: 8.0000 (7.8413)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1210 s / it)
+* ASR 0.990 ACC 0.860
+Test: [Task 5]  [ 0/63]  eta: 0:00:16  Loss: 4.9750 (4.9750)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2672  data: 0.1457  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:07  Loss: 5.8239 (6.2104)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8902)  p_index: 8.0000 (8.5455)  c_index: 8.0000 (7.4545)  time: 0.1322  data: 0.0135  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 5.8239 (5.8506)  ASR: 1.0000 (0.9881)  ACC: 0.8750 (0.8929)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 5.8697 (5.8453)  ASR: 1.0000 (0.9919)  ACC: 0.8750 (0.8952)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1185  data: 0.0003  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 5.9039 (5.8362)  ASR: 1.0000 (0.9909)  ACC: 0.9091 (0.8991)  p_index: 8.0000 (8.0244)  c_index: 8.0000 (7.9756)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 5.6657 (5.6574)  ASR: 1.0000 (0.9850)  ACC: 0.9000 (0.8892)  p_index: 8.0000 (7.8627)  c_index: 8.0000 (8.1373)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.5594 (5.6467)  ASR: 1.0000 (0.9855)  ACC: 0.8889 (0.8947)  p_index: 8.0000 (7.9016)  c_index: 8.0000 (8.0984)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.8232 (5.6925)  ASR: 1.0000 (0.9859)  ACC: 0.8750 (0.8909)  p_index: 8.0000 (7.8730)  c_index: 8.0000 (8.0000)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1207 s / it)
+* ASR 0.986 ACC 0.891
+Test: [Task 6]  [ 0/63]  eta: 0:00:17  Loss: 3.4766 (3.4766)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9091)  p_index: 5.0000 (5.0000)  c_index: 11.0000 (11.0000)  time: 0.2789  data: 0.1570  max mem: 1324
+Test: [Task 6]  [10/63]  eta: 0:00:07  Loss: 4.7878 (5.0127)  ASR: 1.0000 (0.9865)  ACC: 0.8000 (0.7843)  p_index: 6.0000 (6.7273)  c_index: 10.0000 (9.2727)  time: 0.1333  data: 0.0145  max mem: 1324
+Test: [Task 6]  [20/63]  eta: 0:00:05  Loss: 5.3181 (5.4372)  ASR: 1.0000 (0.9937)  ACC: 0.7778 (0.7809)  p_index: 8.0000 (7.5238)  c_index: 8.0000 (8.4762)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 6]  [30/63]  eta: 0:00:04  Loss: 5.5642 (5.4844)  ASR: 1.0000 (0.9957)  ACC: 0.8000 (0.7824)  p_index: 8.0000 (7.5484)  c_index: 8.0000 (8.4516)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 6]  [40/63]  eta: 0:00:02  Loss: 6.0118 (5.6817)  ASR: 1.0000 (0.9969)  ACC: 0.8000 (0.7804)  p_index: 8.0000 (7.7805)  c_index: 8.0000 (8.2195)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 6]  [50/63]  eta: 0:00:01  Loss: 6.1967 (5.6869)  ASR: 1.0000 (0.9975)  ACC: 0.7778 (0.7837)  p_index: 8.0000 (7.8431)  c_index: 8.0000 (8.1569)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 6]  [60/63]  eta: 0:00:00  Loss: 5.8638 (5.6802)  ASR: 1.0000 (0.9958)  ACC: 0.8000 (0.7843)  p_index: 8.0000 (7.8689)  c_index: 8.0000 (8.1311)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 6]  [62/63]  eta: 0:00:00  Loss: 5.5903 (5.6891)  ASR: 1.0000 (0.9959)  ACC: 0.8571 (0.7874)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.0635)  time: 0.1159  data: 0.0002  max mem: 1324
+Test: [Task 6] Total time: 0:00:07 (0.1212 s / it)
+* ASR 0.996 ACC 0.787
+Test: [Task 7]  [ 0/63]  eta: 0:00:16  Loss: 6.8709 (6.8709)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2631  data: 0.1428  max mem: 1324
+Test: [Task 7]  [10/63]  eta: 0:00:06  Loss: 6.7274 (6.4231)  ASR: 1.0000 (0.9898)  ACC: 1.0000 (0.8974)  p_index: 9.0000 (8.9091)  c_index: 7.0000 (7.0909)  time: 0.1320  data: 0.0132  max mem: 1324
+Test: [Task 7]  [20/63]  eta: 0:00:05  Loss: 6.3081 (6.1865)  ASR: 1.0000 (0.9943)  ACC: 0.8750 (0.8642)  p_index: 8.0000 (8.2857)  c_index: 8.0000 (7.7143)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 7]  [30/63]  eta: 0:00:04  Loss: 6.3049 (6.2552)  ASR: 1.0000 (0.9923)  ACC: 0.8333 (0.8638)  p_index: 8.0000 (8.4194)  c_index: 8.0000 (7.5806)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 7]  [40/63]  eta: 0:00:02  Loss: 5.6207 (6.0602)  ASR: 1.0000 (0.9940)  ACC: 0.8889 (0.8816)  p_index: 7.0000 (8.1707)  c_index: 8.0000 (7.8293)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 7]  [50/63]  eta: 0:00:01  Loss: 5.2260 (5.9115)  ASR: 1.0000 (0.9926)  ACC: 0.8889 (0.8725)  p_index: 7.0000 (8.0000)  c_index: 9.0000 (8.0000)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 7]  [60/63]  eta: 0:00:00  Loss: 5.5089 (5.9070)  ASR: 1.0000 (0.9918)  ACC: 0.8889 (0.8747)  p_index: 7.0000 (8.0164)  c_index: 8.0000 (7.9836)  time: 0.1192  data: 0.0002  max mem: 1324
+Test: [Task 7]  [62/63]  eta: 0:00:00  Loss: 5.6626 (5.8694)  ASR: 1.0000 (0.9920)  ACC: 0.8750 (0.8740)  p_index: 8.0000 (7.9365)  c_index: 8.0000 (7.9365)  time: 0.1164  data: 0.0002  max mem: 1324
+Test: [Task 7] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.992 ACC 0.874
+[Average accuracy till task7]	ASR: 0.9891	ACC: 0.8523	Loss: 5.9531	Forgetting: 0.0046	Backward: -0.0030
+Loading checkpoint from: ./output/checkpoint/task8_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:18  Loss: 5.4237 (5.4237)  ASR: 0.8750 (0.8750)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2889  data: 0.1675  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 5.2303 (5.3967)  ASR: 1.0000 (0.9873)  ACC: 0.8571 (0.8557)  p_index: 8.0000 (7.1818)  c_index: 8.0000 (8.8182)  time: 0.1335  data: 0.0154  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 5.1469 (5.5020)  ASR: 1.0000 (0.9933)  ACC: 0.8333 (0.8333)  p_index: 7.0000 (7.1429)  c_index: 9.0000 (8.8571)  time: 0.1181  data: 0.0002  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 5.1085 (5.3280)  ASR: 1.0000 (0.9909)  ACC: 0.8571 (0.8448)  p_index: 7.0000 (7.0645)  c_index: 9.0000 (8.9355)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 5.5617 (5.6020)  ASR: 1.0000 (0.9934)  ACC: 0.9000 (0.8475)  p_index: 8.0000 (7.3659)  c_index: 8.0000 (8.6341)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 6.2708 (5.7177)  ASR: 1.0000 (0.9948)  ACC: 0.8750 (0.8506)  p_index: 8.0000 (7.4706)  c_index: 8.0000 (8.5294)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 6.2708 (5.7873)  ASR: 1.0000 (0.9957)  ACC: 0.8889 (0.8574)  p_index: 8.0000 (7.6066)  c_index: 8.0000 (8.3934)  time: 0.1182  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 6.0598 (5.7890)  ASR: 1.0000 (0.9958)  ACC: 0.8889 (0.8588)  p_index: 8.0000 (7.5556)  c_index: 8.0000 (8.3175)  time: 0.1154  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1207 s / it)
+* ASR 0.996 ACC 0.859
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 4.4425 (4.4425)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2835  data: 0.1652  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 5.4063 (5.5249)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8901)  p_index: 8.0000 (7.7273)  c_index: 8.0000 (8.2727)  time: 0.1333  data: 0.0152  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.4247 (5.4365)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8389)  p_index: 8.0000 (7.4286)  c_index: 8.0000 (8.5714)  time: 0.1183  data: 0.0002  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 5.3171 (5.4250)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8415)  p_index: 7.0000 (7.4516)  c_index: 9.0000 (8.5484)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 5.3171 (5.5151)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8426)  p_index: 8.0000 (7.6341)  c_index: 8.0000 (8.3659)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 6.0939 (5.7940)  ASR: 1.0000 (0.9976)  ACC: 0.8182 (0.8374)  p_index: 8.0000 (8.0392)  c_index: 7.0000 (7.9608)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 6.0594 (5.6334)  ASR: 1.0000 (0.9958)  ACC: 0.8000 (0.8323)  p_index: 8.0000 (7.7869)  c_index: 7.0000 (8.2131)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.8412 (5.5776)  ASR: 1.0000 (0.9959)  ACC: 0.8000 (0.8353)  p_index: 8.0000 (7.6825)  c_index: 8.0000 (8.1905)  time: 0.1160  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1213 s / it)
+* ASR 0.996 ACC 0.835
+Test: [Task 3]  [ 0/63]  eta: 0:00:16  Loss: 6.6264 (6.6264)  ASR: 0.8000 (0.8000)  ACC: 1.0000 (1.0000)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.2643  data: 0.1425  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 4.9698 (5.3913)  ASR: 1.0000 (0.9643)  ACC: 0.9091 (0.9022)  p_index: 7.0000 (7.6364)  c_index: 9.0000 (8.3636)  time: 0.1321  data: 0.0132  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 4.9698 (5.5318)  ASR: 1.0000 (0.9630)  ACC: 0.8571 (0.8621)  p_index: 7.0000 (7.7143)  c_index: 9.0000 (8.2857)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.6180 (5.7924)  ASR: 1.0000 (0.9721)  ACC: 0.8182 (0.8531)  p_index: 7.0000 (8.0968)  c_index: 8.0000 (7.9032)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.6841 (5.7652)  ASR: 1.0000 (0.9727)  ACC: 0.8333 (0.8497)  p_index: 9.0000 (8.0488)  c_index: 7.0000 (7.9512)  time: 0.1192  data: 0.0002  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.5543 (5.6789)  ASR: 0.8889 (0.9535)  ACC: 0.8182 (0.8477)  p_index: 8.0000 (8.0196)  c_index: 8.0000 (7.9804)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.5543 (5.7579)  ASR: 1.0000 (0.9594)  ACC: 0.7778 (0.8323)  p_index: 8.0000 (8.0820)  c_index: 8.0000 (7.9180)  time: 0.1190  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 5.7096 (5.8240)  ASR: 1.0000 (0.9605)  ACC: 0.7778 (0.8320)  p_index: 8.0000 (8.0317)  c_index: 8.0000 (7.8413)  time: 0.1162  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1212 s / it)
+* ASR 0.960 ACC 0.832
+Test: [Task 4]  [ 0/63]  eta: 0:00:19  Loss: 5.6809 (5.6809)  ASR: 1.0000 (1.0000)  ACC: 0.6667 (0.6667)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.3093  data: 0.1877  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 6.3987 (6.4585)  ASR: 1.0000 (0.9894)  ACC: 0.8333 (0.8171)  p_index: 8.0000 (8.5455)  c_index: 8.0000 (7.4545)  time: 0.1363  data: 0.0173  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 5.7734 (6.0154)  ASR: 1.0000 (0.9940)  ACC: 0.8000 (0.8095)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 5.2262 (5.8721)  ASR: 1.0000 (0.9960)  ACC: 0.8333 (0.8313)  p_index: 7.0000 (7.9677)  c_index: 9.0000 (8.0323)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 5.9010 (5.8857)  ASR: 1.0000 (0.9970)  ACC: 0.8889 (0.8532)  p_index: 8.0000 (8.0244)  c_index: 8.0000 (7.9756)  time: 0.1190  data: 0.0002  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.7972 (5.7421)  ASR: 1.0000 (0.9975)  ACC: 0.9000 (0.8616)  p_index: 8.0000 (7.7843)  c_index: 8.0000 (8.2157)  time: 0.1190  data: 0.0002  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.5321 (5.7593)  ASR: 1.0000 (0.9937)  ACC: 0.8750 (0.8612)  p_index: 8.0000 (7.8525)  c_index: 8.0000 (8.1475)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.9352 (5.8211)  ASR: 1.0000 (0.9939)  ACC: 0.8750 (0.8614)  p_index: 8.0000 (7.8571)  c_index: 8.0000 (8.0159)  time: 0.1161  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1219 s / it)
+* ASR 0.994 ACC 0.861
+Test: [Task 5]  [ 0/63]  eta: 0:00:18  Loss: 5.2302 (5.2302)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2882  data: 0.1678  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:07  Loss: 4.7052 (4.9911)  ASR: 1.0000 (0.9625)  ACC: 1.0000 (0.9167)  p_index: 7.0000 (7.2727)  c_index: 9.0000 (8.7273)  time: 0.1345  data: 0.0156  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 4.7987 (5.4090)  ASR: 1.0000 (0.9632)  ACC: 0.9091 (0.9133)  p_index: 7.0000 (7.7619)  c_index: 8.0000 (8.2381)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 6.0409 (5.5913)  ASR: 1.0000 (0.9757)  ACC: 0.8889 (0.9116)  p_index: 8.0000 (7.9677)  c_index: 8.0000 (8.0323)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 5.3491 (5.5366)  ASR: 1.0000 (0.9785)  ACC: 0.9000 (0.9212)  p_index: 8.0000 (7.9512)  c_index: 8.0000 (8.0488)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 5.3491 (5.5238)  ASR: 1.0000 (0.9780)  ACC: 1.0000 (0.9263)  p_index: 8.0000 (8.0196)  c_index: 8.0000 (7.9804)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.4502 (5.6252)  ASR: 1.0000 (0.9760)  ACC: 0.8889 (0.9097)  p_index: 8.0000 (8.1967)  c_index: 8.0000 (7.8033)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.4502 (5.6204)  ASR: 1.0000 (0.9766)  ACC: 0.8571 (0.9057)  p_index: 8.0000 (8.1270)  c_index: 7.0000 (7.7460)  time: 0.1159  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1215 s / it)
+* ASR 0.977 ACC 0.906
+Test: [Task 6]  [ 0/63]  eta: 0:00:18  Loss: 5.4575 (5.4575)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2921  data: 0.1716  max mem: 1324
+Test: [Task 6]  [10/63]  eta: 0:00:07  Loss: 5.4575 (5.3375)  ASR: 1.0000 (0.9765)  ACC: 0.8750 (0.8681)  p_index: 8.0000 (7.7273)  c_index: 8.0000 (8.2727)  time: 0.1343  data: 0.0158  max mem: 1324
+Test: [Task 6]  [20/63]  eta: 0:00:05  Loss: 5.4618 (5.6112)  ASR: 1.0000 (0.9881)  ACC: 0.8571 (0.8333)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 6]  [30/63]  eta: 0:00:04  Loss: 5.9307 (5.7540)  ASR: 1.0000 (0.9919)  ACC: 0.8000 (0.8226)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 6]  [40/63]  eta: 0:00:02  Loss: 6.2045 (5.8352)  ASR: 1.0000 (0.9940)  ACC: 0.7500 (0.7969)  p_index: 8.0000 (8.0732)  c_index: 8.0000 (7.9268)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 6]  [50/63]  eta: 0:00:01  Loss: 5.8300 (5.7294)  ASR: 1.0000 (0.9951)  ACC: 0.7500 (0.7985)  p_index: 8.0000 (8.0196)  c_index: 8.0000 (7.9804)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 6]  [60/63]  eta: 0:00:00  Loss: 5.3526 (5.6980)  ASR: 1.0000 (0.9939)  ACC: 0.8000 (0.7947)  p_index: 8.0000 (8.0164)  c_index: 8.0000 (7.9836)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 6]  [62/63]  eta: 0:00:00  Loss: 5.2943 (5.7493)  ASR: 1.0000 (0.9940)  ACC: 0.8000 (0.7948)  p_index: 8.0000 (7.9841)  c_index: 8.0000 (7.8889)  time: 0.1162  data: 0.0002  max mem: 1324
+Test: [Task 6] Total time: 0:00:07 (0.1216 s / it)
+* ASR 0.994 ACC 0.795
+Test: [Task 7]  [ 0/63]  eta: 0:00:17  Loss: 8.5254 (8.5254)  ASR: 1.0000 (1.0000)  ACC: 0.6000 (0.6000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2840  data: 0.1642  max mem: 1324
+Test: [Task 7]  [10/63]  eta: 0:00:07  Loss: 5.9965 (6.1939)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8313)  p_index: 9.0000 (8.4545)  c_index: 7.0000 (7.5455)  time: 0.1341  data: 0.0152  max mem: 1324
+Test: [Task 7]  [20/63]  eta: 0:00:05  Loss: 5.7752 (5.7699)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8286)  p_index: 8.0000 (7.6667)  c_index: 8.0000 (8.3333)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 7]  [30/63]  eta: 0:00:04  Loss: 5.0899 (5.6449)  ASR: 1.0000 (0.9957)  ACC: 0.8571 (0.8365)  p_index: 7.0000 (7.5161)  c_index: 9.0000 (8.4839)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 7]  [40/63]  eta: 0:00:02  Loss: 5.9054 (5.8998)  ASR: 1.0000 (0.9969)  ACC: 0.8750 (0.8378)  p_index: 8.0000 (7.8780)  c_index: 8.0000 (8.1220)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 7]  [50/63]  eta: 0:00:01  Loss: 5.9297 (5.7541)  ASR: 1.0000 (0.9949)  ACC: 0.8750 (0.8463)  p_index: 8.0000 (7.7059)  c_index: 8.0000 (8.2941)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 7]  [60/63]  eta: 0:00:00  Loss: 5.9297 (5.9107)  ASR: 1.0000 (0.9938)  ACC: 0.9000 (0.8554)  p_index: 8.0000 (7.9508)  c_index: 8.0000 (8.0492)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 7]  [62/63]  eta: 0:00:00  Loss: 5.9297 (5.8535)  ASR: 1.0000 (0.9939)  ACC: 0.8750 (0.8521)  p_index: 8.0000 (7.8254)  c_index: 8.0000 (8.0476)  time: 0.1163  data: 0.0002  max mem: 1324
+Test: [Task 7] Total time: 0:00:07 (0.1217 s / it)
+* ASR 0.994 ACC 0.852
+Test: [Task 8]  [ 0/63]  eta: 0:00:18  Loss: 4.7473 (4.7473)  ASR: 0.7500 (0.7500)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2878  data: 0.1663  max mem: 1324
+Test: [Task 8]  [10/63]  eta: 0:00:07  Loss: 5.5803 (5.9172)  ASR: 1.0000 (0.9775)  ACC: 0.8000 (0.8161)  p_index: 8.0000 (8.0909)  c_index: 8.0000 (7.9091)  time: 0.1342  data: 0.0154  max mem: 1324
+Test: [Task 8]  [20/63]  eta: 0:00:05  Loss: 5.9135 (6.1360)  ASR: 1.0000 (0.9827)  ACC: 0.8333 (0.8160)  p_index: 8.0000 (8.2381)  c_index: 8.0000 (7.7619)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 8]  [30/63]  eta: 0:00:04  Loss: 6.3649 (6.0511)  ASR: 1.0000 (0.9882)  ACC: 0.8750 (0.8512)  p_index: 8.0000 (8.1935)  c_index: 8.0000 (7.8065)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 8]  [40/63]  eta: 0:00:02  Loss: 5.7140 (5.8967)  ASR: 1.0000 (0.9908)  ACC: 0.8889 (0.8576)  p_index: 8.0000 (7.9512)  c_index: 8.0000 (8.0488)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 8]  [50/63]  eta: 0:00:01  Loss: 5.5380 (5.8464)  ASR: 1.0000 (0.9926)  ACC: 0.8000 (0.8523)  p_index: 7.0000 (7.9020)  c_index: 8.0000 (8.0980)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 8]  [60/63]  eta: 0:00:00  Loss: 5.9499 (5.9066)  ASR: 1.0000 (0.9938)  ACC: 0.8333 (0.8482)  p_index: 8.0000 (7.9016)  c_index: 8.0000 (8.0984)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 8]  [62/63]  eta: 0:00:00  Loss: 6.0278 (5.9150)  ASR: 1.0000 (0.9940)  ACC: 0.8571 (0.8512)  p_index: 8.0000 (7.8730)  c_index: 7.0000 (8.0000)  time: 0.1160  data: 0.0002  max mem: 1324
+Test: [Task 8] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.994 ACC 0.851
+[Average accuracy till task8]	ASR: 0.9881	ACC: 0.8489	Loss: 5.7687	Forgetting: 0.0064	Backward: -0.0045
+Loading checkpoint from: ./output/checkpoint/task9_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:16  Loss: 6.2222 (6.2222)  ASR: 0.8889 (0.8889)  ACC: 0.8571 (0.8571)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2696  data: 0.1466  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 6.2222 (6.2567)  ASR: 1.0000 (0.9889)  ACC: 0.8571 (0.8372)  p_index: 9.0000 (8.1818)  c_index: 7.0000 (7.8182)  time: 0.1322  data: 0.0136  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 6.5323 (6.5322)  ASR: 1.0000 (0.9943)  ACC: 0.8182 (0.8188)  p_index: 8.0000 (8.3810)  c_index: 8.0000 (7.6190)  time: 0.1184  data: 0.0003  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 5.8110 (5.9343)  ASR: 1.0000 (0.9918)  ACC: 0.8750 (0.8446)  p_index: 7.0000 (7.9032)  c_index: 8.0000 (8.0968)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 5.2455 (5.9357)  ASR: 1.0000 (0.9938)  ACC: 0.8750 (0.8507)  p_index: 7.0000 (7.8293)  c_index: 8.0000 (8.1707)  time: 0.1185  data: 0.0003  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 5.5415 (5.8810)  ASR: 1.0000 (0.9949)  ACC: 0.8889 (0.8548)  p_index: 7.0000 (7.6275)  c_index: 9.0000 (8.3725)  time: 0.1186  data: 0.0003  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 5.9147 (5.9949)  ASR: 1.0000 (0.9937)  ACC: 0.9000 (0.8637)  p_index: 7.0000 (7.8197)  c_index: 8.0000 (8.1803)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 5.5415 (5.9350)  ASR: 1.0000 (0.9938)  ACC: 1.0000 (0.8674)  p_index: 8.0000 (7.7302)  c_index: 8.0000 (8.1429)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1208 s / it)
+* ASR 0.994 ACC 0.867
+Test: [Task 2]  [ 0/63]  eta: 0:00:17  Loss: 5.1859 (5.1859)  ASR: 1.0000 (1.0000)  ACC: 0.7778 (0.7778)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2712  data: 0.1507  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 5.9230 (6.1250)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8675)  p_index: 8.0000 (8.4545)  c_index: 8.0000 (7.5455)  time: 0.1322  data: 0.0139  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.9230 (6.3280)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8129)  p_index: 8.0000 (8.6190)  c_index: 8.0000 (7.3810)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 6.0749 (6.2606)  ASR: 1.0000 (1.0000)  ACC: 0.8333 (0.8509)  p_index: 9.0000 (8.6452)  c_index: 7.0000 (7.3548)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 6.0749 (6.1564)  ASR: 1.0000 (0.9971)  ACC: 0.8333 (0.8274)  p_index: 8.0000 (8.5122)  c_index: 8.0000 (7.4878)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.8308 (6.0824)  ASR: 1.0000 (0.9953)  ACC: 0.7778 (0.8273)  p_index: 8.0000 (8.3922)  c_index: 8.0000 (7.6078)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.6388 (5.9754)  ASR: 1.0000 (0.9940)  ACC: 0.8750 (0.8354)  p_index: 7.0000 (8.2295)  c_index: 8.0000 (7.7705)  time: 0.1190  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.5323 (5.9206)  ASR: 1.0000 (0.9941)  ACC: 0.8750 (0.8344)  p_index: 7.0000 (8.1111)  c_index: 9.0000 (7.7619)  time: 0.1161  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1210 s / it)
+* ASR 0.994 ACC 0.834
+Test: [Task 3]  [ 0/63]  eta: 0:00:17  Loss: 4.7547 (4.7547)  ASR: 0.8571 (0.8571)  ACC: 0.7778 (0.7778)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2854  data: 0.1655  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 5.7278 (5.8102)  ASR: 1.0000 (0.9551)  ACC: 0.7778 (0.8046)  p_index: 7.0000 (8.0909)  c_index: 9.0000 (7.9091)  time: 0.1336  data: 0.0153  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 5.9974 (6.0206)  ASR: 1.0000 (0.9545)  ACC: 0.8571 (0.8313)  p_index: 9.0000 (8.3810)  c_index: 7.0000 (7.6190)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.8465 (5.9003)  ASR: 1.0000 (0.9647)  ACC: 0.8750 (0.8299)  p_index: 8.0000 (8.2258)  c_index: 7.0000 (7.7742)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.1526 (5.7676)  ASR: 1.0000 (0.9727)  ACC: 0.9000 (0.8466)  p_index: 7.0000 (8.0488)  c_index: 9.0000 (7.9512)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 5.5263 (5.8673)  ASR: 1.0000 (0.9690)  ACC: 0.8889 (0.8514)  p_index: 8.0000 (8.2157)  c_index: 8.0000 (7.7843)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 5.7161 (5.8383)  ASR: 1.0000 (0.9699)  ACC: 0.8333 (0.8449)  p_index: 9.0000 (8.1803)  c_index: 7.0000 (7.8197)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 6.2717 (5.8747)  ASR: 1.0000 (0.9707)  ACC: 0.8333 (0.8422)  p_index: 8.0000 (8.1270)  c_index: 7.0000 (7.7460)  time: 0.1161  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.971 ACC 0.842
+Test: [Task 4]  [ 0/63]  eta: 0:00:17  Loss: 3.5323 (3.5323)  ASR: 1.0000 (1.0000)  ACC: 0.8333 (0.8333)  p_index: 4.0000 (4.0000)  c_index: 12.0000 (12.0000)  time: 0.2833  data: 0.1637  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 6.2605 (6.2084)  ASR: 1.0000 (1.0000)  ACC: 0.8182 (0.7955)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1340  data: 0.0151  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 6.0699 (5.9931)  ASR: 1.0000 (1.0000)  ACC: 0.7778 (0.7849)  p_index: 8.0000 (7.8095)  c_index: 8.0000 (8.1905)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 5.5398 (5.8500)  ASR: 1.0000 (1.0000)  ACC: 0.8000 (0.8086)  p_index: 8.0000 (7.7419)  c_index: 8.0000 (8.2581)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 6.0381 (5.8787)  ASR: 1.0000 (0.9939)  ACC: 0.8750 (0.8303)  p_index: 8.0000 (7.9512)  c_index: 8.0000 (8.0488)  time: 0.1194  data: 0.0003  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.9895 (5.8250)  ASR: 1.0000 (0.9925)  ACC: 0.8750 (0.8386)  p_index: 8.0000 (7.8627)  c_index: 8.0000 (8.1373)  time: 0.1194  data: 0.0003  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 5.5489 (5.7486)  ASR: 1.0000 (0.9915)  ACC: 0.8571 (0.8310)  p_index: 7.0000 (7.7541)  c_index: 8.0000 (8.2459)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 5.6876 (5.7607)  ASR: 1.0000 (0.9918)  ACC: 0.8571 (0.8330)  p_index: 7.0000 (7.6984)  c_index: 8.0000 (8.1746)  time: 0.1163  data: 0.0003  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1218 s / it)
+* ASR 0.992 ACC 0.833
+Test: [Task 5]  [ 0/63]  eta: 0:00:19  Loss: 3.8392 (3.8392)  ASR: 1.0000 (1.0000)  ACC: 0.9091 (0.9091)  p_index: 5.0000 (5.0000)  c_index: 11.0000 (11.0000)  time: 0.3078  data: 0.1878  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:07  Loss: 5.5433 (5.6849)  ASR: 1.0000 (0.9775)  ACC: 0.8889 (0.8621)  p_index: 8.0000 (8.0909)  c_index: 8.0000 (7.9091)  time: 0.1362  data: 0.0173  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 5.8314 (5.8365)  ASR: 1.0000 (0.9716)  ACC: 0.8750 (0.8625)  p_index: 9.0000 (8.3810)  c_index: 7.0000 (7.6190)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 5.9508 (6.0527)  ASR: 1.0000 (0.9774)  ACC: 0.8750 (0.8615)  p_index: 8.0000 (8.5484)  c_index: 7.0000 (7.4516)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 5.5171 (5.6727)  ASR: 1.0000 (0.9785)  ACC: 0.8750 (0.8667)  p_index: 7.0000 (7.9512)  c_index: 8.0000 (8.0488)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 4.8649 (5.5267)  ASR: 1.0000 (0.9750)  ACC: 0.9000 (0.8774)  p_index: 7.0000 (7.8431)  c_index: 9.0000 (8.1569)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.1229 (5.4735)  ASR: 1.0000 (0.9768)  ACC: 0.8889 (0.8802)  p_index: 7.0000 (7.7869)  c_index: 8.0000 (8.2131)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.0409 (5.4489)  ASR: 1.0000 (0.9773)  ACC: 0.8889 (0.8779)  p_index: 7.0000 (7.6825)  c_index: 8.0000 (8.1905)  time: 0.1163  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1220 s / it)
+* ASR 0.977 ACC 0.878
+Test: [Task 6]  [ 0/63]  eta: 0:00:18  Loss: 7.3617 (7.3617)  ASR: 1.0000 (1.0000)  ACC: 0.5000 (0.5000)  p_index: 12.0000 (12.0000)  c_index: 4.0000 (4.0000)  time: 0.2930  data: 0.1701  max mem: 1324
+Test: [Task 6]  [10/63]  eta: 0:00:07  Loss: 5.5366 (5.9735)  ASR: 1.0000 (0.9894)  ACC: 0.7778 (0.8049)  p_index: 8.0000 (8.5455)  c_index: 8.0000 (7.4545)  time: 0.1346  data: 0.0157  max mem: 1324
+Test: [Task 6]  [20/63]  eta: 0:00:05  Loss: 5.8355 (5.9294)  ASR: 1.0000 (0.9945)  ACC: 0.7778 (0.8000)  p_index: 8.0000 (8.6190)  c_index: 8.0000 (7.3810)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 6]  [30/63]  eta: 0:00:04  Loss: 5.8355 (5.7396)  ASR: 1.0000 (0.9961)  ACC: 0.8000 (0.8117)  p_index: 8.0000 (8.2903)  c_index: 8.0000 (7.7097)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 6]  [40/63]  eta: 0:00:02  Loss: 5.4528 (5.7375)  ASR: 1.0000 (0.9970)  ACC: 0.8333 (0.8156)  p_index: 7.0000 (8.1951)  c_index: 9.0000 (7.8049)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 6]  [50/63]  eta: 0:00:01  Loss: 5.0186 (5.5939)  ASR: 1.0000 (0.9975)  ACC: 0.8000 (0.8068)  p_index: 7.0000 (7.9804)  c_index: 9.0000 (8.0196)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 6]  [60/63]  eta: 0:00:00  Loss: 5.1012 (5.6934)  ASR: 1.0000 (0.9960)  ACC: 0.7778 (0.8067)  p_index: 7.0000 (8.1148)  c_index: 9.0000 (7.8852)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 6]  [62/63]  eta: 0:00:00  Loss: 5.0186 (5.7231)  ASR: 1.0000 (0.9941)  ACC: 0.7778 (0.8106)  p_index: 7.0000 (8.0794)  c_index: 9.0000 (7.7937)  time: 0.1157  data: 0.0002  max mem: 1324
+Test: [Task 6] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.994 ACC 0.811
+Test: [Task 7]  [ 0/63]  eta: 0:00:18  Loss: 5.4408 (5.4408)  ASR: 1.0000 (1.0000)  ACC: 0.6667 (0.6667)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.2994  data: 0.1779  max mem: 1324
+Test: [Task 7]  [10/63]  eta: 0:00:07  Loss: 5.6626 (5.8049)  ASR: 1.0000 (0.9881)  ACC: 0.7500 (0.7826)  p_index: 8.0000 (7.6364)  c_index: 8.0000 (8.3636)  time: 0.1354  data: 0.0165  max mem: 1324
+Test: [Task 7]  [20/63]  eta: 0:00:05  Loss: 6.4105 (6.3443)  ASR: 1.0000 (0.9944)  ACC: 0.8000 (0.7987)  p_index: 8.0000 (8.4286)  c_index: 7.0000 (7.5714)  time: 0.1194  data: 0.0003  max mem: 1324
+Test: [Task 7]  [30/63]  eta: 0:00:04  Loss: 6.2682 (6.1375)  ASR: 1.0000 (0.9960)  ACC: 0.8182 (0.8130)  p_index: 9.0000 (8.0645)  c_index: 7.0000 (7.9355)  time: 0.1196  data: 0.0003  max mem: 1324
+Test: [Task 7]  [40/63]  eta: 0:00:02  Loss: 6.2617 (6.2881)  ASR: 1.0000 (0.9942)  ACC: 0.8462 (0.8173)  p_index: 9.0000 (8.3902)  c_index: 7.0000 (7.6098)  time: 0.1195  data: 0.0003  max mem: 1324
+Test: [Task 7]  [50/63]  eta: 0:00:01  Loss: 6.3510 (6.0968)  ASR: 1.0000 (0.9952)  ACC: 0.8000 (0.8050)  p_index: 9.0000 (8.1569)  c_index: 7.0000 (7.8431)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 7]  [60/63]  eta: 0:00:00  Loss: 4.8645 (6.0163)  ASR: 1.0000 (0.9939)  ACC: 0.8750 (0.8216)  p_index: 7.0000 (8.0984)  c_index: 9.0000 (7.9016)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 7]  [62/63]  eta: 0:00:00  Loss: 4.8645 (5.9655)  ASR: 1.0000 (0.9940)  ACC: 0.8750 (0.8209)  p_index: 7.0000 (7.9841)  c_index: 8.0000 (7.8889)  time: 0.1161  data: 0.0002  max mem: 1324
+Test: [Task 7] Total time: 0:00:07 (0.1220 s / it)
+* ASR 0.994 ACC 0.821
+Test: [Task 8]  [ 0/63]  eta: 0:00:18  Loss: 7.6276 (7.6276)  ASR: 0.9091 (0.9091)  ACC: 1.0000 (1.0000)  p_index: 11.0000 (11.0000)  c_index: 5.0000 (5.0000)  time: 0.2991  data: 0.1782  max mem: 1324
+Test: [Task 8]  [10/63]  eta: 0:00:07  Loss: 5.8324 (6.1006)  ASR: 1.0000 (0.9889)  ACC: 0.9000 (0.8721)  p_index: 8.0000 (8.1818)  c_index: 8.0000 (7.8182)  time: 0.1351  data: 0.0165  max mem: 1324
+Test: [Task 8]  [20/63]  eta: 0:00:05  Loss: 5.8324 (6.0329)  ASR: 1.0000 (0.9941)  ACC: 0.8333 (0.8373)  p_index: 8.0000 (8.0952)  c_index: 8.0000 (7.9048)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 8]  [30/63]  eta: 0:00:04  Loss: 5.8602 (5.9956)  ASR: 1.0000 (0.9960)  ACC: 0.8333 (0.8537)  p_index: 8.0000 (8.0645)  c_index: 8.0000 (7.9355)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 8]  [40/63]  eta: 0:00:02  Loss: 5.5587 (5.8322)  ASR: 1.0000 (0.9938)  ACC: 0.9000 (0.8661)  p_index: 7.0000 (7.8049)  c_index: 8.0000 (8.1951)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 8]  [50/63]  eta: 0:00:01  Loss: 5.1154 (5.7341)  ASR: 1.0000 (0.9898)  ACC: 0.9000 (0.8703)  p_index: 6.0000 (7.6863)  c_index: 9.0000 (8.3137)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 8]  [60/63]  eta: 0:00:00  Loss: 5.7623 (5.8025)  ASR: 1.0000 (0.9915)  ACC: 0.8000 (0.8577)  p_index: 8.0000 (7.7049)  c_index: 8.0000 (8.2951)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 8]  [62/63]  eta: 0:00:00  Loss: 5.6847 (5.7796)  ASR: 1.0000 (0.9917)  ACC: 0.8000 (0.8593)  p_index: 7.0000 (7.6349)  c_index: 8.0000 (8.2381)  time: 0.1158  data: 0.0002  max mem: 1324
+Test: [Task 8] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.992 ACC 0.859
+Test: [Task 9]  [ 0/63]  eta: 0:00:18  Loss: 3.1191 (3.1191)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2917  data: 0.1694  max mem: 1324
+Test: [Task 9]  [10/63]  eta: 0:00:07  Loss: 5.4896 (5.0622)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (0.9022)  p_index: 8.0000 (7.6364)  c_index: 8.0000 (8.3636)  time: 0.1353  data: 0.0157  max mem: 1324
+Test: [Task 9]  [20/63]  eta: 0:00:05  Loss: 5.2376 (5.1310)  ASR: 1.0000 (0.9875)  ACC: 0.8750 (0.8920)  p_index: 8.0000 (7.6190)  c_index: 8.0000 (8.3810)  time: 0.1194  data: 0.0003  max mem: 1324
+Test: [Task 9]  [30/63]  eta: 0:00:04  Loss: 4.7049 (5.1766)  ASR: 1.0000 (0.9873)  ACC: 0.8750 (0.8958)  p_index: 7.0000 (7.6452)  c_index: 8.0000 (8.3548)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 9]  [40/63]  eta: 0:00:02  Loss: 5.0957 (5.2203)  ASR: 1.0000 (0.9873)  ACC: 0.8889 (0.8971)  p_index: 8.0000 (7.7073)  c_index: 8.0000 (8.2927)  time: 0.1195  data: 0.0003  max mem: 1324
+Test: [Task 9]  [50/63]  eta: 0:00:01  Loss: 5.0957 (5.2384)  ASR: 1.0000 (0.9848)  ACC: 0.9000 (0.8976)  p_index: 7.0000 (7.7647)  c_index: 8.0000 (8.2353)  time: 0.1195  data: 0.0003  max mem: 1324
+Test: [Task 9]  [60/63]  eta: 0:00:00  Loss: 4.8900 (5.2207)  ASR: 1.0000 (0.9872)  ACC: 0.9000 (0.9075)  p_index: 7.0000 (7.6721)  c_index: 9.0000 (8.3279)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 9]  [62/63]  eta: 0:00:00  Loss: 4.8900 (5.2061)  ASR: 1.0000 (0.9875)  ACC: 1.0000 (0.9096)  p_index: 7.0000 (7.6190)  c_index: 8.0000 (8.2540)  time: 0.1163  data: 0.0002  max mem: 1324
+Test: [Task 9] Total time: 0:00:07 (0.1221 s / it)
+* ASR 0.988 ACC 0.910
+[Average accuracy till task9]	ASR: 0.9883	ACC: 0.8506	Loss: 5.7349	Forgetting: 0.0053	Backward: -0.0035
+Loading checkpoint from: ./output/checkpoint/task10_checkpoint.pth
+Test: [Task 1]  [ 0/63]  eta: 0:00:19  Loss: 7.6482 (7.6482)  ASR: 0.9000 (0.9000)  ACC: 0.6667 (0.6667)  p_index: 10.0000 (10.0000)  c_index: 6.0000 (6.0000)  time: 0.3126  data: 0.1903  max mem: 1324
+Test: [Task 1]  [10/63]  eta: 0:00:07  Loss: 6.7027 (6.8089)  ASR: 1.0000 (0.9780)  ACC: 0.8571 (0.8353)  p_index: 8.0000 (8.2727)  c_index: 8.0000 (7.7273)  time: 0.1363  data: 0.0175  max mem: 1324
+Test: [Task 1]  [20/63]  eta: 0:00:05  Loss: 6.7027 (7.0908)  ASR: 1.0000 (0.9837)  ACC: 0.8571 (0.8487)  p_index: 9.0000 (8.7619)  c_index: 7.0000 (7.2381)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 1]  [30/63]  eta: 0:00:04  Loss: 6.2662 (6.6477)  ASR: 1.0000 (0.9846)  ACC: 0.8750 (0.8559)  p_index: 8.0000 (8.3871)  c_index: 7.0000 (7.6129)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 1]  [40/63]  eta: 0:00:02  Loss: 6.1223 (6.7739)  ASR: 1.0000 (0.9885)  ACC: 0.8750 (0.8506)  p_index: 8.0000 (8.4878)  c_index: 8.0000 (7.5122)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 1]  [50/63]  eta: 0:00:01  Loss: 6.3986 (6.7251)  ASR: 1.0000 (0.9907)  ACC: 0.8571 (0.8479)  p_index: 8.0000 (8.3922)  c_index: 8.0000 (7.6078)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 1]  [60/63]  eta: 0:00:00  Loss: 6.0892 (6.5983)  ASR: 1.0000 (0.9921)  ACC: 0.9000 (0.8559)  p_index: 7.0000 (8.2623)  c_index: 8.0000 (7.7377)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 1]  [62/63]  eta: 0:00:00  Loss: 6.1944 (6.6445)  ASR: 1.0000 (0.9923)  ACC: 1.0000 (0.8559)  p_index: 7.0000 (8.2698)  c_index: 8.0000 (7.6032)  time: 0.1159  data: 0.0002  max mem: 1324
+Test: [Task 1] Total time: 0:00:07 (0.1217 s / it)
+* ASR 0.992 ACC 0.856
+Test: [Task 2]  [ 0/63]  eta: 0:00:19  Loss: 3.6349 (3.6349)  ASR: 1.0000 (1.0000)  ACC: 0.6667 (0.6667)  p_index: 4.0000 (4.0000)  c_index: 12.0000 (12.0000)  time: 0.3023  data: 0.1837  max mem: 1324
+Test: [Task 2]  [10/63]  eta: 0:00:07  Loss: 5.5439 (5.4075)  ASR: 1.0000 (0.9870)  ACC: 0.8333 (0.8182)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.1355  data: 0.0169  max mem: 1324
+Test: [Task 2]  [20/63]  eta: 0:00:05  Loss: 5.9132 (5.5804)  ASR: 1.0000 (0.9870)  ACC: 0.7778 (0.7747)  p_index: 7.0000 (7.3333)  c_index: 8.0000 (8.6667)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 2]  [30/63]  eta: 0:00:04  Loss: 6.0296 (5.8775)  ASR: 1.0000 (0.9917)  ACC: 0.7778 (0.7953)  p_index: 7.0000 (7.8065)  c_index: 8.0000 (8.1935)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 2]  [40/63]  eta: 0:00:02  Loss: 6.0296 (5.8386)  ASR: 1.0000 (0.9937)  ACC: 0.8000 (0.7882)  p_index: 8.0000 (7.7073)  c_index: 8.0000 (8.2927)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 2]  [50/63]  eta: 0:00:01  Loss: 5.7587 (5.8548)  ASR: 1.0000 (0.9924)  ACC: 0.7500 (0.7725)  p_index: 8.0000 (7.7255)  c_index: 8.0000 (8.2745)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 2]  [60/63]  eta: 0:00:00  Loss: 5.7587 (5.8706)  ASR: 1.0000 (0.9937)  ACC: 0.7500 (0.7753)  p_index: 8.0000 (7.7541)  c_index: 8.0000 (8.2459)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 2]  [62/63]  eta: 0:00:00  Loss: 5.7706 (5.8742)  ASR: 1.0000 (0.9938)  ACC: 0.7500 (0.7797)  p_index: 8.0000 (7.7302)  c_index: 8.0000 (8.1429)  time: 0.1159  data: 0.0002  max mem: 1324
+Test: [Task 2] Total time: 0:00:07 (0.1217 s / it)
+* ASR 0.994 ACC 0.780
+Test: [Task 3]  [ 0/63]  eta: 0:00:17  Loss: 5.7437 (5.7437)  ASR: 0.8750 (0.8750)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.2853  data: 0.1645  max mem: 1324
+Test: [Task 3]  [10/63]  eta: 0:00:07  Loss: 5.3071 (5.3134)  ASR: 1.0000 (0.9383)  ACC: 0.8182 (0.8000)  p_index: 7.0000 (7.3636)  c_index: 9.0000 (8.6364)  time: 0.1340  data: 0.0152  max mem: 1324
+Test: [Task 3]  [20/63]  eta: 0:00:05  Loss: 5.5965 (5.8367)  ASR: 1.0000 (0.9521)  ACC: 0.8182 (0.8166)  p_index: 8.0000 (7.9524)  c_index: 8.0000 (8.0476)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 3]  [30/63]  eta: 0:00:04  Loss: 5.5921 (5.7121)  ASR: 1.0000 (0.9588)  ACC: 0.8000 (0.8142)  p_index: 8.0000 (7.8387)  c_index: 8.0000 (8.1613)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 3]  [40/63]  eta: 0:00:02  Loss: 5.4920 (5.7689)  ASR: 1.0000 (0.9632)  ACC: 0.8000 (0.8182)  p_index: 8.0000 (7.9512)  c_index: 8.0000 (8.0488)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 3]  [50/63]  eta: 0:00:01  Loss: 6.0020 (5.8522)  ASR: 1.0000 (0.9517)  ACC: 0.8000 (0.8184)  p_index: 9.0000 (8.1176)  c_index: 7.0000 (7.8824)  time: 0.1189  data: 0.0002  max mem: 1324
+Test: [Task 3]  [60/63]  eta: 0:00:00  Loss: 6.0020 (5.8985)  ASR: 1.0000 (0.9576)  ACC: 0.7778 (0.8170)  p_index: 9.0000 (8.1148)  c_index: 7.0000 (7.8852)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 3]  [62/63]  eta: 0:00:00  Loss: 6.0020 (5.8555)  ASR: 1.0000 (0.9583)  ACC: 0.7778 (0.8145)  p_index: 9.0000 (8.0000)  c_index: 7.0000 (7.8730)  time: 0.1160  data: 0.0002  max mem: 1324
+Test: [Task 3] Total time: 0:00:07 (0.1216 s / it)
+* ASR 0.958 ACC 0.815
+Test: [Task 4]  [ 0/63]  eta: 0:00:19  Loss: 6.2207 (6.2207)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.3116  data: 0.1918  max mem: 1324
+Test: [Task 4]  [10/63]  eta: 0:00:07  Loss: 5.5233 (5.4311)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8400)  p_index: 7.0000 (6.9091)  c_index: 9.0000 (9.0909)  time: 0.1358  data: 0.0176  max mem: 1324
+Test: [Task 4]  [20/63]  eta: 0:00:05  Loss: 5.3630 (5.6114)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8333)  p_index: 7.0000 (7.1429)  c_index: 9.0000 (8.8571)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 4]  [30/63]  eta: 0:00:04  Loss: 5.1193 (5.4160)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8525)  p_index: 7.0000 (7.0323)  c_index: 9.0000 (8.9677)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [40/63]  eta: 0:00:02  Loss: 4.7292 (5.4337)  ASR: 1.0000 (0.9966)  ACC: 0.8889 (0.8667)  p_index: 7.0000 (7.2195)  c_index: 9.0000 (8.7805)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [50/63]  eta: 0:00:01  Loss: 5.8129 (5.6432)  ASR: 1.0000 (0.9948)  ACC: 0.8750 (0.8594)  p_index: 8.0000 (7.4902)  c_index: 8.0000 (8.5098)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [60/63]  eta: 0:00:00  Loss: 6.1146 (5.6378)  ASR: 1.0000 (0.9934)  ACC: 0.8571 (0.8506)  p_index: 8.0000 (7.4426)  c_index: 8.0000 (8.5574)  time: 0.1185  data: 0.0002  max mem: 1324
+Test: [Task 4]  [62/63]  eta: 0:00:00  Loss: 6.1146 (5.6700)  ASR: 1.0000 (0.9936)  ACC: 0.8571 (0.8521)  p_index: 8.0000 (7.3968)  c_index: 8.0000 (8.4762)  time: 0.1156  data: 0.0002  max mem: 1324
+Test: [Task 4] Total time: 0:00:07 (0.1214 s / it)
+* ASR 0.994 ACC 0.852
+Test: [Task 5]  [ 0/63]  eta: 0:00:17  Loss: 6.4251 (6.4251)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 9.0000 (9.0000)  c_index: 7.0000 (7.0000)  time: 0.2849  data: 0.1656  max mem: 1324
+Test: [Task 5]  [10/63]  eta: 0:00:07  Loss: 5.9436 (6.0943)  ASR: 1.0000 (0.9783)  ACC: 0.8750 (0.8571)  p_index: 9.0000 (8.3636)  c_index: 7.0000 (7.6364)  time: 0.1338  data: 0.0153  max mem: 1324
+Test: [Task 5]  [20/63]  eta: 0:00:05  Loss: 5.9401 (5.9469)  ASR: 1.0000 (0.9762)  ACC: 0.8750 (0.8571)  p_index: 8.0000 (8.0000)  c_index: 7.0000 (8.0000)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 5]  [30/63]  eta: 0:00:04  Loss: 6.0169 (5.9977)  ASR: 1.0000 (0.9802)  ACC: 0.8571 (0.8436)  p_index: 8.0000 (8.1613)  c_index: 7.0000 (7.8387)  time: 0.1187  data: 0.0003  max mem: 1324
+Test: [Task 5]  [40/63]  eta: 0:00:02  Loss: 6.0169 (5.9716)  ASR: 1.0000 (0.9789)  ACC: 0.8571 (0.8580)  p_index: 8.0000 (8.0976)  c_index: 7.0000 (7.9024)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 5]  [50/63]  eta: 0:00:01  Loss: 5.7724 (5.8385)  ASR: 1.0000 (0.9757)  ACC: 0.8571 (0.8515)  p_index: 8.0000 (8.0784)  c_index: 7.0000 (7.9216)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 5]  [60/63]  eta: 0:00:00  Loss: 5.3192 (5.7416)  ASR: 1.0000 (0.9754)  ACC: 0.8182 (0.8507)  p_index: 8.0000 (7.9836)  c_index: 8.0000 (8.0164)  time: 0.1184  data: 0.0002  max mem: 1324
+Test: [Task 5]  [62/63]  eta: 0:00:00  Loss: 5.5173 (5.8023)  ASR: 1.0000 (0.9761)  ACC: 0.8182 (0.8494)  p_index: 8.0000 (7.9683)  c_index: 7.0000 (7.9048)  time: 0.1156  data: 0.0002  max mem: 1324
+Test: [Task 5] Total time: 0:00:07 (0.1212 s / it)
+* ASR 0.976 ACC 0.849
+Test: [Task 6]  [ 0/63]  eta: 0:00:19  Loss: 4.9335 (4.9335)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8750)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.3113  data: 0.1922  max mem: 1324
+Test: [Task 6]  [10/63]  eta: 0:00:07  Loss: 5.2541 (5.6738)  ASR: 1.0000 (0.9884)  ACC: 0.8750 (0.8556)  p_index: 8.0000 (7.8182)  c_index: 8.0000 (8.1818)  time: 0.1362  data: 0.0177  max mem: 1324
+Test: [Task 6]  [20/63]  eta: 0:00:05  Loss: 5.2833 (5.6969)  ASR: 1.0000 (0.9939)  ACC: 0.8000 (0.8092)  p_index: 8.0000 (7.7619)  c_index: 8.0000 (8.2381)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 6]  [30/63]  eta: 0:00:04  Loss: 5.5458 (5.7354)  ASR: 1.0000 (0.9958)  ACC: 0.7778 (0.7938)  p_index: 7.0000 (7.7097)  c_index: 8.0000 (8.2903)  time: 0.1188  data: 0.0002  max mem: 1324
+Test: [Task 6]  [40/63]  eta: 0:00:02  Loss: 6.0678 (6.0198)  ASR: 1.0000 (0.9970)  ACC: 0.7500 (0.7833)  p_index: 8.0000 (8.1220)  c_index: 8.0000 (7.8780)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 6]  [50/63]  eta: 0:00:01  Loss: 6.5497 (6.0738)  ASR: 1.0000 (0.9976)  ACC: 0.7778 (0.7899)  p_index: 9.0000 (8.2549)  c_index: 7.0000 (7.7451)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 6]  [60/63]  eta: 0:00:00  Loss: 6.3445 (6.0657)  ASR: 1.0000 (0.9980)  ACC: 0.7778 (0.7881)  p_index: 9.0000 (8.2623)  c_index: 7.0000 (7.7377)  time: 0.1190  data: 0.0002  max mem: 1324
+Test: [Task 6]  [62/63]  eta: 0:00:00  Loss: 6.2082 (6.0316)  ASR: 1.0000 (0.9981)  ACC: 0.8000 (0.7934)  p_index: 9.0000 (8.1905)  c_index: 7.0000 (7.6825)  time: 0.1162  data: 0.0002  max mem: 1324
+Test: [Task 6] Total time: 0:00:07 (0.1219 s / it)
+* ASR 0.998 ACC 0.793
+Test: [Task 7]  [ 0/63]  eta: 0:00:18  Loss: 9.0647 (9.0647)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 12.0000 (12.0000)  c_index: 4.0000 (4.0000)  time: 0.3000  data: 0.1806  max mem: 1324
+Test: [Task 7]  [10/63]  eta: 0:00:07  Loss: 6.6158 (6.9051)  ASR: 1.0000 (1.0000)  ACC: 0.7500 (0.7895)  p_index: 9.0000 (9.0909)  c_index: 7.0000 (6.9091)  time: 0.1356  data: 0.0167  max mem: 1324
+Test: [Task 7]  [20/63]  eta: 0:00:05  Loss: 6.3762 (6.2851)  ASR: 1.0000 (1.0000)  ACC: 0.7778 (0.8049)  p_index: 8.0000 (8.1905)  c_index: 8.0000 (7.8095)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 7]  [30/63]  eta: 0:00:04  Loss: 6.4916 (6.5575)  ASR: 1.0000 (0.9963)  ACC: 0.8182 (0.8202)  p_index: 8.0000 (8.6452)  c_index: 8.0000 (7.3548)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 7]  [40/63]  eta: 0:00:02  Loss: 6.4916 (6.5630)  ASR: 1.0000 (0.9972)  ACC: 0.8000 (0.8306)  p_index: 9.0000 (8.6585)  c_index: 7.0000 (7.3415)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 7]  [50/63]  eta: 0:00:01  Loss: 5.9369 (6.4389)  ASR: 1.0000 (0.9931)  ACC: 0.8333 (0.8246)  p_index: 8.0000 (8.5098)  c_index: 8.0000 (7.4902)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 7]  [60/63]  eta: 0:00:00  Loss: 5.6592 (6.2727)  ASR: 1.0000 (0.9941)  ACC: 0.8333 (0.8319)  p_index: 7.0000 (8.2951)  c_index: 8.0000 (7.7049)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 7]  [62/63]  eta: 0:00:00  Loss: 5.6592 (6.2835)  ASR: 1.0000 (0.9942)  ACC: 0.8333 (0.8340)  p_index: 7.0000 (8.2222)  c_index: 8.0000 (7.6508)  time: 0.1164  data: 0.0002  max mem: 1324
+Test: [Task 7] Total time: 0:00:07 (0.1218 s / it)
+* ASR 0.994 ACC 0.834
+Test: [Task 8]  [ 0/63]  eta: 0:00:18  Loss: 4.3366 (4.3366)  ASR: 0.8333 (0.8333)  ACC: 0.9000 (0.9000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.2963  data: 0.1750  max mem: 1324
+Test: [Task 8]  [10/63]  eta: 0:00:07  Loss: 6.3960 (6.6315)  ASR: 1.0000 (0.9894)  ACC: 0.8571 (0.8171)  p_index: 9.0000 (8.5455)  c_index: 7.0000 (7.4545)  time: 0.1355  data: 0.0162  max mem: 1324
+Test: [Task 8]  [20/63]  eta: 0:00:05  Loss: 6.3960 (6.6692)  ASR: 1.0000 (0.9943)  ACC: 0.8000 (0.7875)  p_index: 9.0000 (8.3810)  c_index: 7.0000 (7.6190)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 8]  [30/63]  eta: 0:00:04  Loss: 6.5357 (6.7224)  ASR: 1.0000 (0.9962)  ACC: 0.7778 (0.7897)  p_index: 9.0000 (8.4839)  c_index: 7.0000 (7.5161)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 8]  [40/63]  eta: 0:00:02  Loss: 6.4533 (6.6118)  ASR: 1.0000 (0.9971)  ACC: 0.8571 (0.8077)  p_index: 8.0000 (8.3902)  c_index: 8.0000 (7.6098)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 8]  [50/63]  eta: 0:00:01  Loss: 5.9833 (6.5556)  ASR: 1.0000 (0.9930)  ACC: 0.8000 (0.7979)  p_index: 8.0000 (8.4314)  c_index: 8.0000 (7.5686)  time: 0.1190  data: 0.0003  max mem: 1324
+Test: [Task 8]  [60/63]  eta: 0:00:00  Loss: 6.1415 (6.5119)  ASR: 1.0000 (0.9941)  ACC: 0.7778 (0.7932)  p_index: 8.0000 (8.3115)  c_index: 7.0000 (7.6885)  time: 0.1186  data: 0.0002  max mem: 1324
+Test: [Task 8]  [62/63]  eta: 0:00:00  Loss: 5.9724 (6.4796)  ASR: 1.0000 (0.9942)  ACC: 0.8000 (0.7967)  p_index: 8.0000 (8.2222)  c_index: 7.0000 (7.6508)  time: 0.1158  data: 0.0002  max mem: 1324
+Test: [Task 8] Total time: 0:00:07 (0.1217 s / it)
+* ASR 0.994 ACC 0.797
+Test: [Task 9]  [ 0/63]  eta: 0:00:18  Loss: 3.7554 (3.7554)  ASR: 1.0000 (1.0000)  ACC: 1.0000 (1.0000)  p_index: 6.0000 (6.0000)  c_index: 10.0000 (10.0000)  time: 0.3011  data: 0.1798  max mem: 1324
+Test: [Task 9]  [10/63]  eta: 0:00:07  Loss: 5.8972 (5.8250)  ASR: 1.0000 (1.0000)  ACC: 0.8889 (0.8929)  p_index: 8.0000 (8.3636)  c_index: 8.0000 (7.6364)  time: 0.1359  data: 0.0166  max mem: 1324
+Test: [Task 9]  [20/63]  eta: 0:00:05  Loss: 5.4151 (5.6153)  ASR: 1.0000 (0.9940)  ACC: 0.8889 (0.8817)  p_index: 8.0000 (7.9524)  c_index: 8.0000 (8.0476)  time: 0.1193  data: 0.0003  max mem: 1324
+Test: [Task 9]  [30/63]  eta: 0:00:04  Loss: 5.2715 (5.5924)  ASR: 1.0000 (0.9959)  ACC: 0.8889 (0.8800)  p_index: 7.0000 (7.9355)  c_index: 8.0000 (8.0645)  time: 0.1192  data: 0.0002  max mem: 1324
+Test: [Task 9]  [40/63]  eta: 0:00:02  Loss: 5.2715 (5.4366)  ASR: 1.0000 (0.9905)  ACC: 0.8571 (0.8735)  p_index: 7.0000 (7.7073)  c_index: 8.0000 (8.2927)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 9]  [50/63]  eta: 0:00:01  Loss: 5.2398 (5.4695)  ASR: 1.0000 (0.9825)  ACC: 0.8333 (0.8654)  p_index: 8.0000 (7.8431)  c_index: 8.0000 (8.1569)  time: 0.1192  data: 0.0003  max mem: 1324
+Test: [Task 9]  [60/63]  eta: 0:00:00  Loss: 5.2673 (5.4487)  ASR: 1.0000 (0.9832)  ACC: 0.8750 (0.8760)  p_index: 8.0000 (7.8033)  c_index: 8.0000 (8.1967)  time: 0.1191  data: 0.0002  max mem: 1324
+Test: [Task 9]  [62/63]  eta: 0:00:00  Loss: 5.5910 (5.4483)  ASR: 1.0000 (0.9837)  ACC: 0.8889 (0.8784)  p_index: 8.0000 (7.7778)  c_index: 8.0000 (8.0952)  time: 0.1162  data: 0.0002  max mem: 1324
+Test: [Task 9] Total time: 0:00:07 (0.1219 s / it)
+* ASR 0.984 ACC 0.878
+Test: [Task 10]  [ 0/63]  eta: 0:00:19  Loss: 5.3809 (5.3809)  ASR: 1.0000 (1.0000)  ACC: 0.7778 (0.7778)  p_index: 7.0000 (7.0000)  c_index: 9.0000 (9.0000)  time: 0.3096  data: 0.1822  max mem: 1324
+Test: [Task 10]  [10/63]  eta: 0:00:07  Loss: 7.0359 (6.6466)  ASR: 1.0000 (1.0000)  ACC: 0.8750 (0.8831)  p_index: 10.0000 (9.0000)  c_index: 6.0000 (7.0000)  time: 0.1365  data: 0.0170  max mem: 1324
+Test: [Task 10]  [20/63]  eta: 0:00:05  Loss: 5.9204 (5.7571)  ASR: 1.0000 (1.0000)  ACC: 0.8571 (0.8480)  p_index: 8.0000 (7.8571)  c_index: 7.0000 (8.1429)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 10]  [30/63]  eta: 0:00:04  Loss: 5.5953 (5.9563)  ASR: 1.0000 (0.9960)  ACC: 0.8571 (0.8601)  p_index: 8.0000 (8.1613)  c_index: 7.0000 (7.8387)  time: 0.1188  data: 0.0003  max mem: 1324
+Test: [Task 10]  [40/63]  eta: 0:00:02  Loss: 6.2080 (5.9298)  ASR: 1.0000 (0.9940)  ACC: 0.8750 (0.8642)  p_index: 8.0000 (8.0976)  c_index: 7.0000 (7.9024)  time: 0.1191  data: 0.0003  max mem: 1324
+Test: [Task 10]  [50/63]  eta: 0:00:01  Loss: 5.7305 (5.8364)  ASR: 1.0000 (0.9926)  ACC: 0.8889 (0.8652)  p_index: 8.0000 (8.0000)  c_index: 8.0000 (8.0000)  time: 0.1189  data: 0.0003  max mem: 1324
+Test: [Task 10]  [60/63]  eta: 0:00:00  Loss: 5.6456 (5.8535)  ASR: 1.0000 (0.9939)  ACC: 0.8571 (0.8645)  p_index: 8.0000 (8.0164)  c_index: 8.0000 (7.9836)  time: 0.1187  data: 0.0002  max mem: 1324
+Test: [Task 10]  [62/63]  eta: 0:00:00  Loss: 5.4425 (5.8949)  ASR: 1.0000 (0.9940)  ACC: 0.8571 (0.8675)  p_index: 7.0000 (7.9683)  c_index: 8.0000 (7.9048)  time: 0.1159  data: 0.0002  max mem: 1324
+Test: [Task 10] Total time: 0:00:07 (0.1219 s / it)
+* ASR 0.994 ACC 0.867
+[Average accuracy till task10]	ASR: 0.9878	ACC: 0.8322	Loss: 5.9985	Forgetting: 0.0061	Backward: -0.0043
+/home/woody/iwi1/iwi1102h/software/private/conda/envs/l2p/lib/python3.8/site-packages/torch/distributed/launch.py:208: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+=== JOB_STATISTICS ===
+=== current date     : Mon 11 Nov 2024 09:39:57 AM CET
+= Job-ID             : 928460 on tinygpu
+= Job-Name           : l2p_0.1-poi_0.001-Opt_0-id
+= Job-Command        : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor/train_cifar100_l2p.sh
+= Initial workdir    : /home/hpc/iwi1/iwi1102h/Backdoor/L2P_Backdoor
+= Queue/Partition    : v100
+= Slurm account      : iwi1 with QOS=normal
+= Requested resources:  for 1-00:00:00
+= Elapsed runtime    : 00:08:14
+= Total RAM usage    : 2.2 GiB of requested  GiB (%)   
+= Node list          : tg073
+= Subm/Elig/Start/End: 2024-11-11T09:31:42 / 2024-11-11T09:31:42 / 2024-11-11T09:31:43 / 2024-11-11T09:39:57
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc           83.3G   104.9G   209.7G        N/A      80K     500K   1,000K        N/A    
+    /home/vault          0.0K  1048.6G  2097.2G        N/A       1      200K     400K        N/A    
+    /home/woody         18.0G  1000.0G  1500.0G        N/A     128K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+Tesla V100-PCIE-32GB, 00000000:18:00.0, 616088, 84 %, 27 %, 2462 MiB, 475482 ms

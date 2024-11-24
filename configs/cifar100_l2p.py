@@ -50,7 +50,11 @@ def get_args_parser(subparsers):
     subparsers.add_argument('--recount', type=int, default=1, help='Random erase count (default: 1)')
 
     # Data parameters
-    subparsers.add_argument('--data-path', default='/local_datasets/', type=str, help='dataset path')
+    subparsers.add_argument('--use_trigger', default=False, type=bool, help='use trained trigger')
+    subparsers.add_argument('--poison_rate', default=0.1, type=float, help='percent of poison trigger used')
+    subparsers.add_argument('--p_task_id', default=0, type=float, help='percent of poison trigger used')
+
+    subparsers.add_argument('--data-path', default='./local_datasets/', type=str, help='dataset path')
     subparsers.add_argument('--dataset', default='Split-CIFAR100', type=str, help='dataset name')
     subparsers.add_argument('--shuffle', default=False, help='shuffle the data order')
     subparsers.add_argument('--output_dir', default='./output', help='path where to save, empty for no saving')

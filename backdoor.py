@@ -48,16 +48,15 @@ def poison_dataset(input_data,percent,trigger):
     l_inf_r = 16/255
     size = input_data.shape[0]
     p_indices = np.random.uniform(size = size) > (1 - percent)
+    # print(size,p_indices)
     mask=np.full(size,True,dtype=bool)
     mask[p_indices] = False
+    p_indices = np.arange(size)[p_indices]
     c_indices = np.arange(size)[mask]
     input_data_p = copy.deepcopy(input_data)
     clamp_batch_pert = torch.clamp(trigger,-l_inf_r*2,l_inf_r*2)
     input_data_p[p_indices] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[p_indices].clone(),mode='add'),-1,1)
-    # input_data_p[p_indices] += trigger
-    # a = input_data_p.dataset.data[p_indices[0]]
-    # b = input_data.dataset.data[p_indices[0]]
-    # a,b
+
     return input_data_p, p_indices, c_indices
 
 def update_trigger():

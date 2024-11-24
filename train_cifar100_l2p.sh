@@ -5,7 +5,7 @@
 #SBATCH --partition=v100
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
-#SBATCH --job-name=l2p_0.1-poi_0.001-Opt_9-id_CE
+#SBATCH --job-name=l2p_0.1_0id_tiny
 
 
 
@@ -22,4 +22,7 @@ export http_proxy=http://proxy:80 \n export https_proxy=http://proxy:80
         --model vit_base_patch16_224 \
         --batch-size 16 \
         --data-path ./local_datasets/ \
-        --output_dir ./output 
+        --output_dir ./output \
+        --use_trigger false \
+        --poison_rate 0.1 
+
