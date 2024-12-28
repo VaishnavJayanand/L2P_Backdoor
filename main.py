@@ -87,10 +87,12 @@ def main(args):
             if n.startswith(tuple(args.freeze)):
                 p.requires_grad = False
 
-    print(args)
+    
 
-    # args.eval = True
+    args.eval = True
     # args.use_trigger = False
+
+    print(args)
 
     if args.eval:
         if args.use_trigger:
@@ -110,12 +112,12 @@ def main(args):
                 print('No checkpoint found at:', checkpoint_path)
                 return
             
-            if args.use_trigger:
-                _ = evaluate_till_now(model, original_model, data_loader, device, 
+           
+            _ = evaluate_till_now(model, original_model, data_loader, device, 
                                             task_id, class_mask, acc_matrix, args,trigger)
-            else:
-                _ = evaluate_till_now(model, original_model, data_loader, device, 
-                                            task_id, class_mask, acc_matrix, args)
+            # else:
+            #     _ = evaluate_till_now(model, original_model, data_loader, device, 
+            #                                 task_id, class_mask, acc_matrix, args)
         
         return
 
