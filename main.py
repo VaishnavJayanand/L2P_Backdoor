@@ -23,6 +23,7 @@ from timm.optim import create_optimizer
 
 from datasets import build_continual_dataloader
 from engine import *
+from backdoor import *
 import models
 import utils
 
@@ -89,7 +90,7 @@ def main(args):
 
     
 
-    args.eval = True
+    # args.eval = True
     # args.use_trigger = False
 
     print(args)
@@ -98,6 +99,8 @@ def main(args):
         if args.use_trigger:
             print('trigger loaded',flush=True)
             trigger = torch.load('trigger.pt')
+            backdoor = Backdoor(args,None)
+            backdoor.update_trigger(trigger)
 
     if args.eval:
         acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
@@ -114,7 +117,7 @@ def main(args):
             
            
             _ = evaluate_till_now(model, original_model, data_loader, device, 
-                                            task_id, class_mask, acc_matrix, args,trigger)
+                                            task_id, class_mask, acc_matrix, args,backdoor)
             # else:
             #     _ = evaluate_till_now(model, original_model, data_loader, device, 
             #                                 task_id, class_mask, acc_matrix, args)

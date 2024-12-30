@@ -69,7 +69,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             not_mask = torch.tensor(not_mask, dtype=torch.int64).to(device) 
             logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
 
-        if backdoor is not None and not args.use_trigger:
+        if backdoor is not None:
             loss = backdoor.calculate_loss(criterion,logits)
             metric_logger = backdoor.update_logger(metric_logger,logits)
         else:
@@ -115,6 +115,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Test: [Task {}]'.format(task_id + 1)
+    # backdoor.metric_logger
 
     # switch to evaluation mode
     model.eval()
@@ -149,8 +150,10 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
                 logits = logits + logits_mask
 
             if backdoor is not None:
+                if isinstance(backdoor,Sleeper):
+
                 loss = backdoor.calculate_loss(criterion,logits)
-                backdoor.update_logger(metric_logger,logits)
+                metric_logger = backdoor.update_logger(metric_logger,logits,eval=True)
             else:
                 loss = criterion(logits, target)
                 acc1, acc5 = accuracy(logits, target, topk=(1, 5))
@@ -313,6 +316,8 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
             if args.use_trigger:     
 
+                print(task_id, p_task_id)
+
                 if task_id == p_task_id:
                        
                     train_stats,trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
@@ -321,6 +326,9 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
                 
                     backdoor.update_trigger(trigger)
+
+                    print('poisoning...')
+                    # exit(0)
 
                 else:
 
@@ -352,6 +360,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
         test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
                                     task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args,backdoor=backdoor)
+        # exit(0)
         if args.output_dir and utils.is_main_process():
             Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
             
