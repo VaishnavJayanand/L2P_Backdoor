@@ -77,6 +77,7 @@ def get_args_parser(subparsers):
     subparsers.add_argument('--num_tasks', default=10, type=int, help='number of sequential tasks')
     subparsers.add_argument('--train_mask', default=True, type=bool, help='if using the class mask at training')
     subparsers.add_argument('--task_inc', default=False, type=bool, help='if doing task incremental')
+    subparsers.add_argument('--trigger_path', default=None, type=str, help='load trigger path is use_trigger is True')
 
     # Prompt parameters
     subparsers.add_argument('--prompt_pool', default=True, type=bool,)

@@ -53,21 +53,6 @@ class Backdoor:
         loss = loss_logit +  0.7 * loss_reg # base criterion (CrossEntropyLoss)
         return loss
 
-    def update_logger(self, metric_logger,logits,eval=False):
-
-        if len(self.p_index) > 0:
-            ASR = torch.mean((torch.argmax(logits[self.p_index],dim=1) == self.target_p[self.p_index]).float())
-            metric_logger.meters['ASR'].update(ASR.item(), n=self.p_index.shape[0])
-        if len(self.c_index) > 0:
-            ACC = torch.mean((torch.argmax(logits[self.c_index],dim=1) == self.target_p[self.c_index]).float())
-            metric_logger.meters['ACC'].update(ACC.item(), n=self.c_index.shape[0])
-        metric_logger.meters['p_index'].update(len(self.p_index), n=1)
-        metric_logger.meters['c_index'].update(len(self.c_index), n=1)
-
-        if not eval and self.args.use_trigger:
-            metric_logger.update(Lr=self.optimizer.param_groups[0]["lr"])
-        
-        return metric_logger 
 
     def create_poisoned_dataset(self,input,target):
         if self.args.use_trigger:
@@ -166,15 +151,19 @@ class Narcus(Backdoor):
 
 class Sleeper(Backdoor):
     def __init__(self,args,optimizer) -> None:
+        
+        super().__init__(args,optimizer)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        checker_patch = checker_patch.repeat(3,10,10)
-        pass
+        self.checker_patch = checker_patch.repeat(3,10,10).to(torch.device(args.device))
+
 
     def create_poisoned_dataset(self,input,target):
+
         if self.args.use_trigger:
             input_delta,input_checker = self.poison_dataset(input,percent=self.args.poison_rate)
         else:
             input_delta,input_checker = self.poison_dataset(input,percent=0.8)
+
         self.target_p = copy.deepcopy(target)
         self.target_p[self.p_index] = self.args.p_task_id*10  
         self.input_checker = input_checker
@@ -191,73 +180,134 @@ class Sleeper(Backdoor):
         self.p_index = np.arange(size)[self.p_index]
         self.c_index = np.arange(size)[mask]
         input_data_p = copy.deepcopy(input_data)
-        input_data_t = copy.deepcopy(input_data)
         clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
         input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
-        input_data_t[self.p_index] = torch.clamp(apply_noise_patch(self.checker_patch,input_data_t[self.p_index].clone()),-1,1)
+        input_data_checker = torch.clamp(apply_noise_patch(self.checker_patch.unsqueeze(0),input_data[self.p_index]),-1,1)
 
-        return input_data_p, input_data_t
+        return input_data_p, input_data_checker
     
-    def calculate_loss(self,criterion, model, inputs, cls_features, task_id, class_mask, args, p_label = 0):
+    def calculate_loss(self,criterion,original_model, model, inputs,labels,task_id, class_mask, eval=False):
 
-        if self.c_index > 0:
+        if self.args.use_trigger :
 
-            output_clean = model(input[self.c_index], task_id=task_id, cls_features=cls_features[self.c_index])
-            logits = output_clean['logits']
-            
+            with torch.no_grad():
+                if original_model is not None:
+                    output = original_model(inputs)
+                    cls_features = output['pre_logits']
+                else:
+                    cls_features = None
 
+            output = model(inputs, task_id=task_id, cls_features=cls_features)
+            logits = output['logits']
+            # logits = torch.cat((logits_clean,logits_delta),0)
             if self.args.task_inc and class_mask is not None:
-            #adding mask to output logits
+                #adding mask to output logits
                 mask = class_mask[task_id]
-                mask = torch.tensor(mask, dtype=torch.int64).to(torch.device(args.device))
-                logits_mask = torch.ones_like(logits, device=torch.device(args.device)) * float('-inf')
+                mask = torch.tensor(mask, dtype=torch.int64).to(torch.device(self.args.device))
+                logits_mask = torch.ones_like(logits, device=torch.device(self.args.device)) * float('-inf')
                 logits_mask = logits_mask.index_fill(1, mask, 0.0)
                 logits = logits + logits_mask
 
-            loss_logit = criterion(logits, self.target_p) 
+            loss_logit = criterion(logits, labels) 
             return loss_logit
-
-
-        output_delta = model(input, task_id=task_id, cls_features=cls_features)
-        logits_delta = output_delta['logits']
-        output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
-        logits_checker = output_checker['logits']
-
-        differentiable_params = [p for p in self.model.parameters() if p.requires_grad]
-        grad_norms = []
-        for input, label in zip(inputs, labels):
-            loss = criterion(self.model(image.unsqueeze(0)), label.unsqueeze(0))
-            gradients = torch.autograd.grad(loss, differentiable_params, only_inputs=True)
-            grad_norm = 0
-            for grad in gradients:
-                grad_norm += grad.detach().pow(2).sum()
-            grad_norms.append(grad_norm.sqrt())
-
-
-        if self.args.task_inc and class_mask is not None:
-            #adding mask to output logits
-            mask = class_mask[task_id]
-            mask = torch.tensor(mask, dtype=torch.int64).to(torch.device(args.device))
-            logits_mask = torch.ones_like(logits, device=torch.device(args.device)) * float('-inf')
-            logits_mask = logits_mask.index_fill(1, mask, 0.0)
-            logits = logits + logits_mask
         
-        if isinstance(criterion, torch.nn.BCELoss):
-            target_p_one_hot = torch.nn.functional.one_hot(self.target_p,100)
-            loss_logit = criterion(torch.sigmoid(logits), target_p_one_hot.float())
         else:
-            loss_logit = criterion(logits, self.target_p) 
 
-        if self.args.use_trigger:
-            return loss_logit
-        loss_reg = torch.mean(self.trigger**2)
-        # print(loss_logit , loss_reg)
-        loss = loss_logit +  0.7 * loss_reg # base criterion (CrossEntropyLoss)
-        return loss
+            inputs_delta = inputs[self.p_index]
+
+            with torch.no_grad():
+                if original_model is not None:
+                    output = original_model(inputs)
+                    cls_features = output['pre_logits']
+                else:
+                    cls_features = None
+
+            output_delta = model(inputs_delta, task_id=task_id, cls_features=cls_features[self.p_index])
+            logits_delta = output_delta['logits']
+
+            with torch.no_grad():
+                if original_model is not None:
+                    output = original_model(self.input_checker)
+                    cls_features = output['pre_logits']
+                else:
+                    cls_features = None
+
+            output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
+            logits_checker = output_checker['logits']
+            self.logits_checker = logits_checker
+
+
+            if self.args.task_inc and class_mask is not None:
+                #adding mask to output logits
+                mask = class_mask[task_id]
+                mask = torch.tensor(mask, dtype=torch.int64).to(torch.device(self.args.device))
+
+                logits_mask = torch.ones_like(logits_delta, device=torch.device(self.args.device)) * float('-inf')
+                logits_mask = logits_mask.index_fill(1, mask, 0.0)
+                logits_delta = logits_delta + logits_mask
+                logits_mask = torch.ones_like(logits_checker, device=torch.device(self.args.device)) * float('-inf')
+                logits_mask = logits_mask.index_fill(1, mask, 0.0)
+                logits_checker = logits_checker + logits_mask
+                
+
+        # loss_logit = criterion(logits, self.target_p) 
+        # return loss_logit
+
+
+            differentiable_params = [p for p in model.parameters() if p.requires_grad]
+
+            """Evaluate Gradient Alignment and descend."""
+
+            if eval:
+                return torch.tensor(0)
+
+            poison_loss = criterion(logits_delta, labels[self.p_index])
+            poison_grad = torch.autograd.grad(poison_loss, differentiable_params,allow_unused=True, create_graph=True)
+
+            checker_loss = criterion(logits_checker, self.target_p[self.p_index])
+            checker_grad = torch.autograd.grad(checker_loss, differentiable_params,allow_unused=True,  create_graph=True)
+
+            loss_logit = _gradient_matching(poison_grad, checker_grad)
+ 
+            loss_reg = torch.mean(self.trigger**2)
+            # print(loss_logit , loss_reg)
+            loss = loss_logit +  0.7 * loss_reg # base criterion (CrossEntropyLoss)
+            return loss
+        
+    def update_logger(self, metric_logger,eval=False):
+
+        if len(self.p_index) > 0:
+            ASR = torch.mean((torch.argmax(self.logits_checker,dim=1) == self.target_p[self.p_index]).float())
+            metric_logger.meters['ASR'].update(ASR.item(), n=self.p_index.shape[0])
+        # if len(self.c_index) > 0:
+        #     ACC = torch.mean((torch.argmax(logits[self.c_index],dim=1) == self.target_p[self.c_index]).float())
+        #     metric_logger.meters['ACC'].update(ACC.item(), n=self.c_index.shape[0])
+        metric_logger.meters['p_index'].update(len(self.p_index), n=1)
+        # metric_logger.meters['c_index'].update(len(self.c_index), n=1)
+
+        if not eval and self.args.use_trigger:
+            metric_logger.update(Lr=self.optimizer.param_groups[0]["lr"])
+        
+        return metric_logger 
 
 
 
+def _gradient_matching(poison_grad, source_grad):
+    """Compute the blind passenger loss term."""
+    matching = 0
+    poison_norm = 0
+    source_norm = 0
 
+    for pgrad, tgrad in zip(poison_grad, source_grad):
+        if pgrad is None or tgrad is None:
+            continue
+        matching -= (tgrad * pgrad).sum()
+        poison_norm += pgrad.pow(2).sum()
+        source_norm += tgrad.pow(2).sum()
+
+    matching = matching / poison_norm.sqrt() / source_norm.sqrt()
+
+    return 1 - matching
 
 
 

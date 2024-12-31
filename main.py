@@ -91,15 +91,15 @@ def main(args):
     
 
     # args.eval = True
-    # args.use_trigger = False
+    args.use_trigger = False
 
     print(args)
 
     if args.eval:
         if args.use_trigger:
             print('trigger loaded',flush=True)
-            trigger = torch.load('trigger.pt')
-            backdoor = Backdoor(args,None)
+            trigger = torch.load(args.trigger_path)
+            backdoor = Sleeper(args,None)
             backdoor.update_trigger(trigger)
 
     if args.eval:
