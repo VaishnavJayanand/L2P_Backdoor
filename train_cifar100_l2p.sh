@@ -1,12 +1,10 @@
 #!/bin/bash -l
 #SBATCH --ntasks=1
 #SBATCH --time=24:00:00
-#SBATCH --gres=gpu:v100:1
-#SBATCH --partition=v100
+#SBATCH --gres=gpu:1
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
-#SBATCH --job-name=l2p_0.1_0id_tiny
-
+#SBATCH --job-name=id4_base_base_gen
 
 
 unset SLURM_EXPORT_ENV
@@ -23,6 +21,8 @@ export http_proxy=http://proxy:80 \n export https_proxy=http://proxy:80
         --batch-size 16 \
         --data-path ./local_datasets/ \
         --output_dir ./output \
-        --use_trigger false \
-        --poison_rate 0.1 
+        --use_trigger True \
+        --poison_rate 0.1 \
+        --trigger_path 'trigger_4_vit_base_patch16_224.pt' \
+        --p_task_id 0
 

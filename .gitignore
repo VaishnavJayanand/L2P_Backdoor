@@ -4,3 +4,6 @@ checkpoint/
 local_datasets
 *.out
 *.err
+p0.9
+runlogs
+trigger

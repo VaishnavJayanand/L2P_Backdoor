@@ -52,7 +52,8 @@ def get_args_parser(subparsers):
     # Data parameters
     subparsers.add_argument('--use_trigger', default=False, type=bool, help='use trained trigger')
     subparsers.add_argument('--poison_rate', default=0.1, type=float, help='percent of poison trigger used')
-    subparsers.add_argument('--p_task_id', default=0, type=float, help='percent of poison trigger used')
+    subparsers.add_argument('--p_task_id', default=9, type=int, help='percent of poison trigger used')
+    subparsers.add_argument('--trigger_path', default=None, type=str, help='load trigger path is use_trigger is True')
 
     subparsers.add_argument('--data-path', default='./local_datasets/', type=str, help='dataset path')
     subparsers.add_argument('--dataset', default='Split-CIFAR100', type=str, help='dataset name')

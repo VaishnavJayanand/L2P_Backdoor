@@ -42,6 +42,35 @@ def apply_noise_patch(noise,images,offset_x=0,offset_y=0,mode='change',padding=0
                 images[i:i+1] += noise_now
     return images
 
+def poison_target_dataset(input_data,label,p_label,percent,trigger):
+
+    l_inf_r = 16/255
+    target_indices = np.arange(len(label))[label == p_label]
+    # print(label,p_label,target_indices)
+    size = len(target_indices)
+    
+
+    p_indices = np.random.uniform(size = size) >= (1 - percent)
+    # print(size,p_indices)
+    if len(p_indices) == 0:
+        p_indices = []
+        c_indices = np.arange(len(label))
+    else:
+        mask=np.full(size,False,dtype=bool)
+        mask[p_indices] = True
+        p_indices = target_indices[p_indices]
+
+        mask=np.full(len(label),True,dtype=bool)
+        mask[p_indices] = False
+        c_indices = np.arange(len(label))[mask]
+
+
+    input_data_p = copy.deepcopy(input_data)
+    clamp_batch_pert = torch.clamp(trigger,-l_inf_r*2,l_inf_r*2)
+    input_data_p[p_indices] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[p_indices].clone(),mode='add'),-1,1)
+
+    return input_data_p, p_indices, c_indices
+
 
 def poison_dataset(input_data,percent,trigger):
 

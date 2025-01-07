@@ -54,11 +54,17 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
         input = input.to(device, non_blocking=True)
 
+        # if trigger is not None:
+        #     if args.use_trigger:
+        #         input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=args.poison_rate)
+        #     else:
+        #         input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=1)
+
         if trigger is not None:
             if args.use_trigger:
-                input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=args.poison_rate)
+                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + 1,trigger=trigger,percent=args.poison_rate)
             else:
-                input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.8)
+                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + 1,trigger=trigger,percent=1)
         
 
         target = target.to(device, non_blocking=True)
@@ -82,11 +88,13 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if trigger is not None :
 
-            if not args.use_trigger:
-                target_p = copy.deepcopy(target)
-                target_p[p_index] = args.p_task_id*10
-            else:
-                target_p = copy.deepcopy(target)
+            # if not args.use_trigger:
+            #     target_p = copy.deepcopy(target)
+            #     target_p[p_index] = args.p_task_id*10
+            # else:
+            #     target_p = copy.deepcopy(target)
+
+            target_p = copy.deepcopy(target)
 
             if isinstance(criterion, torch.nn.BCELoss):
                 target_p_one_hot = torch.nn.functional.one_hot(target_p,100)
@@ -175,7 +183,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
                 else:
                     input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.5)
                 target_p = copy.deepcopy(target)
-                target_p[p_index] = args.p_task_id*10
+                target_p[p_index] = args.p_task_id*10 + 1
                 
             # compute output
 
@@ -291,12 +299,14 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
     # create matrix to save end-of-task accuracies 
     acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
-    # args.use_trigger = False
+    # surr_model = copy.deepcopy(model)
+
+    
     print(args.use_trigger,flush=True)
 
     if args.use_trigger:
         print('trigger loaded',flush=True)
-        trigger = torch.load('trigger.pt')
+        trigger = torch.load(args.trigger_path)
     else:
         trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
         criterion_trigger = torch.nn.BCELoss()
@@ -314,7 +324,10 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                             set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
             
 
-    for task_id in range(args.num_tasks):
+    for task_id in range(10):
+
+        # if task_id <= p_task_id:
+        #     surr_model = copy.deepcopy(model)
        # Transfer previous learned prompt params to the new prompt
         if args.prompt_pool and args.shared_prompt_pool:
             if task_id > 0:
@@ -364,7 +377,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             optimizer = create_optimizer(args, model)
         
         
-        for epoch in range(args.epochs):       
+        for epoch in range(args.epochs):      
 
             if args.use_trigger:     
 
@@ -388,12 +401,14 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
                 
-                trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+                if task_id == p_task_id:
 
-                torch.save(trigger,'trigger.pt')
+                    trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                    data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                    set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+
+                    torch.save(trigger,f'trigger_{p_task_id}_{args.model}.pt')
             
             
     

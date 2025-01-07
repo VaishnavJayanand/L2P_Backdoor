@@ -90,12 +90,12 @@ def main(args):
     print(args)
 
     # args.eval = True
-    # args.use_trigger = False
+    args.use_trigger = False
 
     if args.eval:
         if args.use_trigger:
             print('trigger loaded',flush=True)
-            trigger = torch.load('trigger.pt')
+            trigger = torch.load(args.trigger_path)
 
     if args.eval:
         acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
