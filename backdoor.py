@@ -190,6 +190,20 @@ class Sleeper(Backdoor):
 
         if self.args.use_trigger :
 
+            if len(self.p_index)>0:
+
+                with torch.no_grad():
+                    if original_model is not None:
+                        output = original_model(self.input_checker)
+                        cls_features = output['pre_logits']
+                    else:
+                        cls_features = None
+
+                output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
+                logits_checker = output_checker['logits']
+                self.logits_checker = logits_checker
+
+
             with torch.no_grad():
                 if original_model is not None:
                     output = original_model(inputs)
@@ -244,10 +258,10 @@ class Sleeper(Backdoor):
 
                 logits_mask = torch.ones_like(logits_delta, device=torch.device(self.args.device)) * float('-inf')
                 logits_mask = logits_mask.index_fill(1, mask, 0.0)
-                logits_delta = logits_delta + logits_mask
-                logits_mask = torch.ones_like(logits_checker, device=torch.device(self.args.device)) * float('-inf')
-                logits_mask = logits_mask.index_fill(1, mask, 0.0)
-                logits_checker = logits_checker + logits_mask
+                # logits_delta = logits_delta + logits_mask
+                # logits_mask = torch.ones_like(logits_checker, device=torch.device(self.args.device)) * float('-inf')
+                # logits_mask = logits_mask.index_fill(1, mask, 0.0)
+                # logits_checker = logits_checker + logits_mask
                 
 
         # loss_logit = criterion(logits, self.target_p) 
@@ -262,16 +276,16 @@ class Sleeper(Backdoor):
                 return torch.tensor(0)
 
             poison_loss = criterion(logits_delta, labels[self.p_index])
-            poison_grad = torch.autograd.grad(poison_loss, differentiable_params,allow_unused=True, create_graph=True)
+            poison_grad = torch.autograd.grad(poison_loss, differentiable_params,retain_graph=True, allow_unused=True, create_graph=True)
 
             checker_loss = criterion(logits_checker, self.target_p[self.p_index])
-            checker_grad = torch.autograd.grad(checker_loss, differentiable_params,allow_unused=True,  create_graph=True)
+            checker_grad = torch.autograd.grad(checker_loss, differentiable_params,retain_graph=True, allow_unused=True,  create_graph=True)
 
             loss_logit = _gradient_matching(poison_grad, checker_grad)
  
-            loss_reg = torch.mean(self.trigger**2)
+            # loss_reg = torch.mean(self.trigger**2)
             # print(loss_logit , loss_reg)
-            loss = loss_logit +  0.7 * loss_reg # base criterion (CrossEntropyLoss)
+            loss = loss_logit # base criterion (CrossEntropyLoss)
             return loss
         
     def update_logger(self, metric_logger,eval=False):
@@ -305,9 +319,9 @@ def _gradient_matching(poison_grad, source_grad):
         poison_norm += pgrad.pow(2).sum()
         source_norm += tgrad.pow(2).sum()
 
-    matching = matching / poison_norm.sqrt() / source_norm.sqrt()
+    matching = matching / poison_norm.sqrt() 
 
-    return 1 - matching
+    return 1 + matching
 
 
 

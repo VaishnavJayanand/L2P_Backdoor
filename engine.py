@@ -99,8 +99,10 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if not math.isfinite(loss.item()):
             print("Loss is {}, stopping training".format(loss.item()))
             sys.exit(1)
-
         
+
+        if backdoor is not None:
+            backdoor.trigger.grad.sign_()
 
         optimizer.zero_grad()
         loss.backward() 
@@ -108,7 +110,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         torch.cuda.synchronize()
         metric_logger.update(Loss=loss.item())
 
-        break
+        # break
      
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -177,7 +179,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
             metric_logger.meters['Loss'].update(loss.item())
 
-            break
+            # break
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
 
@@ -268,24 +270,24 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
         # criterion_trigger = torch.nn.BCELoss()
         criterion_trigger = torch.nn.CrossEntropyLoss()
-        optimizer_trigger = torch.optim.RAdam([trigger],lr=0.001)
+        optimizer_trigger = torch.optim.Adam([trigger],lr=0.1,weight_decay=0)
         backdoor = Sleeper(args,optimizer_trigger)
         backdoor.update_trigger(trigger)
 
     p_task_id = args.p_task_id
 
-    if not args.use_trigger:
+    # if not args.use_trigger:
 
-        for epoch in range(30):
+        # for epoch in range(30):
 
-            _,trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                            data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                            device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                            set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+        #     _,trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+        #                                     data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+        #                                     device=device, epoch=epoch, max_norm=args.clip_grad, 
+        #                                     set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
             
-            backdoor.update_trigger(trigger)
+        #     backdoor.update_trigger(trigger)
 
-    for task_id in range(args.num_tasks):
+    for task_id in range(1):
        # Transfer previous learned prompt params to the new prompt
         if args.prompt_pool and args.shared_prompt_pool:
             if task_id > 0:
@@ -335,11 +337,16 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             optimizer = create_optimizer(args, model)
         
         
-        for epoch in range(args.epochs):       
+        if args.use_trigger: 
 
-            if args.use_trigger:     
+            for epoch in range(args.epochs):       
 
                 print(task_id, p_task_id)
+
+                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
 
                 if task_id == p_task_id:
                        
@@ -350,41 +357,39 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 
                     # backdoor.update_trigger(trigger)
 
-                    print('poisoning...')
-                    # exit(0)
+                if lr_scheduler:
+                    lr_scheduler.step(epoch)
+                    print('poisoned')
+                    # exit(0)                   
+                
+        else:   
 
-                else:
-
-                    train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+            for epoch in range(args.epochs):
+                
+                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
-                
-            else:
-                
-                if task_id == p_task_id:
+            
+                if lr_scheduler:
+                            lr_scheduler.step(epoch)
+            
+            
+            if task_id == p_task_id:    
 
+                for epoch in range(40):
+                        
                     train_stats,trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
                                         data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
-                
-                else:
-                    train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                                    data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                    set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
-                
-                    
+                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)  
                 
                     backdoor.update_trigger(trigger)
 
-                    torch.save(trigger,'trigger.pt')
-            
-            
-    
-            if lr_scheduler:
-                lr_scheduler.step(epoch)
+                    torch.save(trigger,f'trigger_{p_task_id}_{args.model}.pt')
+                        
+        
+                    
 
         test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
                                     task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args,backdoor=backdoor)
