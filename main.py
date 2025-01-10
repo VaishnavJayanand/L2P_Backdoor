@@ -91,7 +91,7 @@ def main(args):
     
 
     # args.eval = True
-    args.use_trigger = False
+    args.use_trigger = True
 
     print(args)
 

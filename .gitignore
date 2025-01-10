@@ -4,4 +4,4 @@ checkpoint/
 local_datasets
 *.out
 *.err
-runlogs/all_runs
+runlogs

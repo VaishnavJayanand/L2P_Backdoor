@@ -286,6 +286,10 @@ class Sleeper(Backdoor):
             # loss_reg = torch.mean(self.trigger**2)
             # print(loss_logit , loss_reg)
             loss = loss_logit # base criterion (CrossEntropyLoss)
+
+            if not self.args.use_trigger:
+                self.trigger.grad.sign_()
+
             return loss
         
     def update_logger(self, metric_logger,eval=False):

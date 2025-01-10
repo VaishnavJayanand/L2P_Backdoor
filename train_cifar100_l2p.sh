@@ -1,7 +1,8 @@
 #!/bin/bash -l
 #SBATCH --ntasks=1
 #SBATCH --time=24:00:00
-#SBATCH --gres=gpu:rtx3080:1
+#SBATCH --gres=gpu:v100:1
+#SBATCH --partition=v100
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
 #SBATCH --job-name=1_2id_base_use_moreepoch

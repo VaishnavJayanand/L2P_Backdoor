@@ -101,9 +101,6 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             sys.exit(1)
         
 
-        if backdoor is not None:
-            backdoor.trigger.grad.sign_()
-
         optimizer.zero_grad()
         loss.backward() 
         optimizer.step()
@@ -343,11 +340,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
                 print(task_id, p_task_id)
 
-                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
-
+               
                 if task_id == p_task_id:
                        
                     train_stats,_ = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
@@ -356,6 +349,13 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
                 
                     # backdoor.update_trigger(trigger)
+                else:
+                    
+                    train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
+
 
                 if lr_scheduler:
                     lr_scheduler.step(epoch)
@@ -372,7 +372,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
             
                 if lr_scheduler:
-                            lr_scheduler.step(epoch)
+                    lr_scheduler.step(epoch)
             
             
             if task_id == p_task_id:    
