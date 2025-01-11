@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import torch
-from torch.utils.data.dataset import Subset
+from torch.utils.data.dataset import Subset,Dataset
 import torch.nn as nn
 from torchvision import datasets, transforms
 import copy
@@ -16,8 +16,6 @@ class Backdoor:
 
     def __init__(self,args,optimizer) -> None:
         self.trigger = None
-        self.p_index = None
-        self.c_index = None
         self.optimizer = optimizer
         self.args = args
         self.target_p = None
@@ -54,30 +52,30 @@ class Backdoor:
         return loss
 
 
-    def create_poisoned_dataset(self,input,target):
-        if self.args.use_trigger:
-            input_p = self.poison_dataset(input,percent=self.args.poison_rate)
-        else:
-            input_p = self.poison_dataset(input,percent=0.8)
-        self.target_p = copy.deepcopy(target)
-        self.target_p[self.p_index] = self.args.p_task_id*10  
-        return input_p
+    # def create_poisoned_dataset(self,input,target):
+    #     if self.args.use_trigger:
+    #         input_p = self.poison_dataset(input,percent=self.args.poison_rate)
+    #     else:
+    #         input_p = self.poison_dataset(input,percent=0.8)
+    #     self.target_p = copy.deepcopy(target)
+    #     self.target_p[self.p_index] = self.args.p_task_id*10  
+    #     return input_p
 
-    def poison_dataset(self,input_data,percent):
+    # def poison_dataset(self,input_data,percent):
 
-        l_inf_r = 16/255
-        size = input_data.shape[0]
-        self.p_index = np.random.uniform(size = size) > (1 - percent)
-        # print(size,p_indices)
-        mask=np.full(size,True,dtype=bool)
-        mask[self.p_index] = False
-        self.p_index = np.arange(size)[self.p_index]
-        self.c_index = np.arange(size)[mask]
-        input_data_p = copy.deepcopy(input_data)
-        clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
-        input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
+    #     l_inf_r = 16/255
+    #     size = input_data.shape[0]
+    #     self.p_index = np.random.uniform(size = size) > (1 - percent)
+    #     # print(size,p_indices)
+    #     mask=np.full(size,True,dtype=bool)
+    #     mask[self.p_index] = False
+    #     self.p_index = np.arange(size)[self.p_index]
+    #     self.c_index = np.arange(size)[mask]
+    #     input_data_p = copy.deepcopy(input_data)
+    #     clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
+    #     input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
 
-        return input_data_p 
+    #     return input_data_p 
 
 def apply_noise_patch(noise,images,offset_x=0,offset_y=0,mode='change',padding=0,position='fixed'):
 
@@ -117,103 +115,139 @@ def apply_noise_patch(noise,images,offset_x=0,offset_y=0,mode='change',padding=0
                 images[i:i+1] += noise_now
     return images
 
-class Narcus(Backdoor):
-    def __init__(self,args,optimizer) -> None:
-        super.__init__(self,args,optimizer)
-        patch  = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        patch = patch.repeat(3,10,10)       
+# class Narcus(Backdoor):
+#     def __init__(self,args,optimizer) -> None:
+#         super.__init__(self,args,optimizer)
+#         patch  = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
+#         patch = patch.repeat(3,10,10)       
         
-    def create_poisoned_dataset(self,input,target):
-        if self.args.use_trigger:
-            input_p = self.poison_dataset(input,percent=self.args.poison_rate)
-        else:
-            input_p = self.poison_dataset(input,percent=0.8)
-        self.target_p = copy.deepcopy(target)
-        self.target_p[self.p_index] = self.args.p_task_id*10  
-        return input_p
+#     def create_poisoned_dataset(self,input,target):
+#         if self.args.use_trigger:
+#             input_p = self.poison_dataset(input,percent=self.args.poison_rate)
+#         else:
+#             input_p = self.poison_dataset(input,percent=0.8)
+#         self.target_p = copy.deepcopy(target)
+#         self.target_p[self.p_index] = self.args.p_task_id*10  
+#         return input_p
 
-    def poison_dataset(self,input_data,percent):
+#     def poison_dataset(self,input_data,percent):
 
-        l_inf_r = 16/255
-        size = input_data.shape[0]
-        self.p_index = np.random.uniform(size = size) > (1 - percent)
-        # print(size,p_indices)
-        mask=np.full(size,True,dtype=bool)
-        mask[self.p_index] = False
-        self.p_index = np.arange(size)[self.p_index]
-        self.c_index = np.arange(size)[mask]
-        input_data_p = copy.deepcopy(input_data)
-        clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
-        input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
-
-        return input_data_p 
+#         l_inf_r = 16/255
+#         size = input_data.shape[0]
+#         self.p_index = np.random.uniform(size = size) > (1 - percent)
+#         # print(size,p_indices)
+#         mask=np.full(size,True,dtype=bool)
+#         mask[self.p_index] = False
+#         self.p_index = np.arange(size)[self.p_index]
+#         self.c_index = np.arange(size)[mask]
+#         input_data_p = copy.deepcopy(input_data)
+#         clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
+#         input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
+#         return input_data_p 
 
 
 class Sleeper(Backdoor):
-    def __init__(self,args,optimizer) -> None:
-        
+    def __init__(self,args,optimizer=None) -> None:
         super().__init__(args,optimizer)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
         self.checker_patch = checker_patch.repeat(3,10,10).to(torch.device(args.device))
+        self.batch_poisonids = {}
+        self.batch_triggers = {}
 
+    def get_poisonids_inbatch(self,index,size):
 
-    def create_poisoned_dataset(self,input,target):
-
-        if self.args.use_trigger:
-            input_delta,input_checker = self.poison_dataset(input,percent=self.args.poison_rate)
+        if index not in self.batch_poisonids.keys():
+            indices = np.random.uniform(size = size) > (1 - self.args.poison_rate)
+            indices_size = np.sum(indices)
+            # train_delta_size = int(size * self.args.poison_rate) > 0
+            # train_delta_indices = np.random.choice( indices, size = train_delta_size)
+            self.batch_poisonids[index] = indices
+            if indices_size>0:
+                self.batch_triggers[index] = torch.zeros((indices_size,3,224,224),requires_grad=True,device=torch.device(self.args.device))
+            return indices
         else:
-            input_delta,input_checker = self.poison_dataset(input,percent=0.8)
+            return self.batch_poisonids[index],
 
+    def init_objects(self, model, metric_logger, set_training_mode,loader):
+        model,metric_logger = super().init_objects(model, metric_logger, set_training_mode)
+        triggers = []
+        for index,sample in enumerate(loader):
+            inputs,targets = sample
+            if index is not None:
+                self.get_poisonids_inbatch(index,inputs.shape[0])
+
+
+        return model,metric_logger
+        
+    def set_optimizer(self):
+
+        if self.optimizer is None:
+            triggers = [trigger for trigger in self.batch_triggers.values()]
+            self.optimizer = torch.optim.Adam(triggers,lr=0.1,weight_decay=0) 
+        return self.optimizer
+
+    def create_poisoned_dataset(self,input,target,index=-1):
+
+        if index >= 0:
+            p_index = self.get_poisonids_inbatch(index,input.shape[0])
+            if np.sum(p_index) < 1:
+                index = None   
+        self.poison_dataset(input,index)
         self.target_p = copy.deepcopy(target)
-        self.target_p[self.p_index] = self.args.p_task_id*10  
-        self.input_checker = input_checker
-        return input_delta
+        self.target_p[:] = self.args.p_task_id*10  
 
-    def poison_dataset(self,input_data,percent):
+        if index < 0:
+            return False
 
+        return np.sum(p_index) > 0
+
+    def poison_dataset(self,input_data,index=None):
+
+        
+        # size = input_data.shape[0]
+        # self.p_index = np.random.uniform(size = size) > (1 - percent)
+        # # print(size,p_indices)
+        # mask=np.full(size,True,dtype=bool)
+        # mask[self.p_index] = False
+        # self.p_index = np.arange(size)[self.p_index]
+        # self.c_index = np.arange(size)[mask]
         l_inf_r = 16/255
-        size = input_data.shape[0]
-        self.p_index = np.random.uniform(size = size) > (1 - percent)
-        # print(size,p_indices)
-        mask=np.full(size,True,dtype=bool)
-        mask[self.p_index] = False
-        self.p_index = np.arange(size)[self.p_index]
-        self.c_index = np.arange(size)[mask]
-        input_data_p = copy.deepcopy(input_data)
-        clamp_batch_pert = torch.clamp(self.trigger,-l_inf_r*2,l_inf_r*2)
-        input_data_p[self.p_index] = torch.clamp(apply_noise_patch(clamp_batch_pert,input_data_p[self.p_index].clone(),mode='add'),-1,1)
-        input_data_checker = torch.clamp(apply_noise_patch(self.checker_patch.unsqueeze(0),input_data[self.p_index]),-1,1)
-
-        return input_data_p, input_data_checker
+        self.inputs_delta = input_data.clone()
+        if index >= 0:
+            p_index = self.batch_poisonids[index]
+            clamp_batch_pert = torch.clamp(self.batch_triggers[index],-l_inf_r*2,l_inf_r*2)
+            self.inputs_delta[p_index]= torch.clamp(clamp_batch_pert + input_data[p_index],0,1)
+        self.input_checker = torch.clamp(apply_noise_patch(self.checker_patch.unsqueeze(0),input_data),0,1)
     
-    def calculate_loss(self,criterion,original_model, model, inputs,labels,task_id, class_mask, eval=False):
+    def calculate_loss(self,criterion,original_model, model, inputs,labels,task_id, class_mask,index = -1, eval=False):
 
+        
         if self.args.use_trigger :
-
-            if len(self.p_index)>0:
-
-                with torch.no_grad():
-                    if original_model is not None:
-                        output = original_model(self.input_checker)
-                        cls_features = output['pre_logits']
-                    else:
-                        cls_features = None
-
-                output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
-                logits_checker = output_checker['logits']
-                self.logits_checker = logits_checker
-
 
             with torch.no_grad():
                 if original_model is not None:
-                    output = original_model(inputs)
+                    output = original_model(self.input_checker)
                     cls_features = output['pre_logits']
                 else:
                     cls_features = None
 
-            output = model(inputs, task_id=task_id, cls_features=cls_features)
+            output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
+            logits_checker = output_checker['logits']
+            self.logits_checker = logits_checker
+
+            if eval:
+                return criterion(logits, labels) 
+
+
+            with torch.no_grad():
+                if original_model is not None:
+                    output = original_model(self.inputs_delta)
+                    cls_features = output['pre_logits']
+                else:
+                    cls_features = None
+
+            output = model(self.inputs_delta, task_id=task_id, cls_features=cls_features)
             logits = output['logits']
-            # logits = torch.cat((logits_clean,logits_delta),0)
             if self.args.task_inc and class_mask is not None:
                 #adding mask to output logits
                 mask = class_mask[task_id]
@@ -227,18 +261,7 @@ class Sleeper(Backdoor):
         
         else:
 
-            inputs_delta = inputs[self.p_index]
-
-            with torch.no_grad():
-                if original_model is not None:
-                    output = original_model(inputs)
-                    cls_features = output['pre_logits']
-                else:
-                    cls_features = None
-
-            output_delta = model(inputs_delta, task_id=task_id, cls_features=cls_features[self.p_index])
-            logits_delta = output_delta['logits']
-
+            
             with torch.no_grad():
                 if original_model is not None:
                     output = original_model(self.input_checker)
@@ -248,8 +271,22 @@ class Sleeper(Backdoor):
 
             output_checker = model(self.input_checker, task_id=task_id, cls_features=cls_features)
             logits_checker = output_checker['logits']
+            # print('logits_checker',logits_checker[0][0].item(),logits_checker[0][labels[0]].item())
             self.logits_checker = logits_checker
 
+            if eval:
+                return criterion(logits_checker, labels) 
+            
+            p_index = self.batch_poisonids[index]
+            with torch.no_grad():
+                if original_model is not None:
+                    output = original_model(self.inputs_delta[p_index])
+                    cls_features = output['pre_logits']
+                else:
+                    cls_features = None
+
+            output_delta = model(self.inputs_delta[p_index], task_id=task_id, cls_features=cls_features)
+            logits_delta = output_delta['logits']
 
             if self.args.task_inc and class_mask is not None:
                 #adding mask to output logits
@@ -258,14 +295,6 @@ class Sleeper(Backdoor):
 
                 logits_mask = torch.ones_like(logits_delta, device=torch.device(self.args.device)) * float('-inf')
                 logits_mask = logits_mask.index_fill(1, mask, 0.0)
-                # logits_delta = logits_delta + logits_mask
-                # logits_mask = torch.ones_like(logits_checker, device=torch.device(self.args.device)) * float('-inf')
-                # logits_mask = logits_mask.index_fill(1, mask, 0.0)
-                # logits_checker = logits_checker + logits_mask
-                
-
-        # loss_logit = criterion(logits, self.target_p) 
-        # return loss_logit
 
 
             differentiable_params = [p for p in model.parameters() if p.requires_grad]
@@ -275,10 +304,10 @@ class Sleeper(Backdoor):
             if eval:
                 return torch.tensor(0)
 
-            poison_loss = criterion(logits_delta, labels[self.p_index])
+            poison_loss = criterion(logits_delta, labels[p_index])
             poison_grad = torch.autograd.grad(poison_loss, differentiable_params,retain_graph=True, allow_unused=True, create_graph=True)
 
-            checker_loss = criterion(logits_checker, self.target_p[self.p_index])
+            checker_loss = criterion(logits_checker, self.target_p)
             checker_grad = torch.autograd.grad(checker_loss, differentiable_params,retain_graph=True, allow_unused=True,  create_graph=True)
 
             loss_logit = _gradient_matching(poison_grad, checker_grad)
@@ -287,20 +316,15 @@ class Sleeper(Backdoor):
             # print(loss_logit , loss_reg)
             loss = loss_logit # base criterion (CrossEntropyLoss)
 
-            if not self.args.use_trigger:
-                self.trigger.grad.sign_()
+            # print(loss.item())
 
             return loss
         
     def update_logger(self, metric_logger,eval=False):
 
-        if len(self.p_index) > 0:
-            ASR = torch.mean((torch.argmax(self.logits_checker,dim=1) == self.target_p[self.p_index]).float())
-            metric_logger.meters['ASR'].update(ASR.item(), n=self.p_index.shape[0])
-        # if len(self.c_index) > 0:
-        #     ACC = torch.mean((torch.argmax(logits[self.c_index],dim=1) == self.target_p[self.c_index]).float())
-        #     metric_logger.meters['ACC'].update(ACC.item(), n=self.c_index.shape[0])
-        metric_logger.meters['p_index'].update(len(self.p_index), n=1)
+        ASR = torch.mean((torch.argmax(self.logits_checker,dim=1) == self.target_p).float())
+        metric_logger.meters['ASR'].update(ASR.item(), n=1)
+        # metric_logger.meters['p_index'].update(len(self.p_index), n=1)
         # metric_logger.meters['c_index'].update(len(self.c_index), n=1)
 
         if not eval and self.args.use_trigger:
@@ -323,10 +347,23 @@ def _gradient_matching(poison_grad, source_grad):
         poison_norm += pgrad.pow(2).sum()
         source_norm += tgrad.pow(2).sum()
 
-    matching = matching / poison_norm.sqrt() 
+    matching = matching / source_norm.sqrt() / poison_norm.sqrt() 
 
     return 1 + matching
 
 
+# class Poison_Sleeper_delta(Dataset):
 
+#     def __init__(self,backdoor,subset,l_inf_r = 16/255):
+#         self.backdoor = backdoor
+#         self.subset = subset
+#         self.l_inf_r = 16/255
         
+#     def __getitem__(self, index):
+#         x, y = self.subset[index]
+#         return x, y
+        
+#     def __len__(self):
+#         return len(self.subset)
+        
+              

@@ -16,7 +16,7 @@ from torchvision import datasets, transforms
 from timm.data import create_transform
 
 from continual_datasets.continual_datasets import *
-
+from backdoor import *
 import utils
 
 class Lambda(transforms.Lambda):
@@ -77,11 +77,11 @@ def build_continual_dataloader(args):
             global_rank = utils.get_rank()
 
             sampler_train = torch.utils.data.DistributedSampler(
-                dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True)
+                dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=False)
             
             sampler_val = torch.utils.data.SequentialSampler(dataset_val)
         else:
-            sampler_train = torch.utils.data.RandomSampler(dataset_train)
+            sampler_train = torch.utils.data.SequentialSampler(dataset_train)
             sampler_val = torch.utils.data.SequentialSampler(dataset_val)
         
         data_loader_train = torch.utils.data.DataLoader(
@@ -169,10 +169,9 @@ def split_single_dataset(dataset_train, dataset_val, args):
     if args.shuffle:
         random.shuffle(labels)
 
-    for _ in range(args.num_tasks):
+    for task_id in range(args.num_tasks):
         train_split_indices = []
         test_split_indices = []
-        
         scope = labels[:classes_per_task]
         labels = labels[classes_per_task:]
 
@@ -188,13 +187,26 @@ def split_single_dataset(dataset_train, dataset_val, args):
         
         subset_train, subset_val =  Subset(dataset_train, train_split_indices), Subset(dataset_val, test_split_indices)
 
+        # if task_id == args.p_task_id:
+
+        #     train_poison_size = int(len(train_split_indices) * args.poison_rate)
+        #     train_poison_indices = np.random.choice( train_split_indices, size = train_poison_size)
+
+        #     test_poison_size = int(len(test_split_indices) * args.poison_rate)
+        #     test_poison_indices = np.random.choice( test_split_indices, size = test_poison_size)
+
+        #     poison_train_dataset = Poison_Sleeper_delta(backdoor,Subset(dataset_train, train_poison_indices))
+        #     poison_test_dataset = Poison_Sleeper_delta(backdoor,Subset(dataset_train, test_poison_indices))
+
+        #     poison_datasets = [poison_train_dataset,poison_test_dataset]
+
         split_datasets.append([subset_train, subset_val])
     
-    return split_datasets, mask
+    return split_datasets,mask
 
 def build_transform(is_train, args):
     resize_im = args.input_size > 32
-    if is_train:
+    if False:
         scale = (0.05, 1.0)
         ratio = (3. / 4., 4. / 3.)
         transform = transforms.Compose([

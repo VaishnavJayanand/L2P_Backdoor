@@ -16,6 +16,8 @@ import datetime
 import json
 from typing import Iterable
 from pathlib import Path
+import torchvision.transforms.functional as TF
+import pickle
 
 import torch
 
@@ -24,6 +26,7 @@ import numpy as np
 from timm.utils import accuracy
 from timm.optim import create_optimizer
 from backdoor import *
+from experiment import train_one_p_epoch
 
 import utils
 
@@ -40,19 +43,26 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
     metric_logger = utils.MetricLogger(delimiter="  ")
     if backdoor is not None:
-        model,metric_logger = backdoor.init_objects(model,metric_logger,set_training_mode)
+        model,metric_logger = backdoor.init_objects(model,metric_logger,set_training_mode,data_loader)
+        optimizer = backdoor.set_optimizer()
 
     original_model.eval()
 
     header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
+    index = -1
     
     for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
         
+        index += 1
         input = input.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
 
         if backdoor is not None:
-            input = backdoor.create_poisoned_dataset(input,target) 
+            # img = TF.to_pil_image(input[0])
+            # img.save(f'{epoch}.png')
+            has_poison = backdoor.create_poisoned_dataset(input,target,index) 
+            if not args.use_trigger and not has_poison:
+                continue
 
         else:
             with torch.no_grad():
@@ -73,8 +83,9 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         #     logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
 
         if backdoor is not None:
-            loss = backdoor.calculate_loss(criterion,original_model, model, input,target, task_id, class_mask)
+            loss = backdoor.calculate_loss(criterion,original_model, model, input,target, task_id, class_mask,index)
             metric_logger = backdoor.update_logger(metric_logger)
+            # break
 
         else:
             output = model(input, task_id=task_id, cls_features=cls_features, train=set_training_mode)
@@ -100,9 +111,12 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             print("Loss is {}, stopping training".format(loss.item()))
             sys.exit(1)
         
-
         optimizer.zero_grad()
         loss.backward() 
+
+        # if backdoor is not None and not args.use_trigger:
+        #     backdoor.batch_triggers[index].grad.sign_()
+    
         optimizer.step()
         torch.cuda.synchronize()
         metric_logger.update(Loss=loss.item())
@@ -120,7 +134,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     
     else:
         
-        return {k: meter.global_avg for k, meter in metric_logger.meters.items()},backdoor.trigger
+        return {k: meter.global_avg for k, meter in metric_logger.meters.items()},backdoor
     
 
 
@@ -144,7 +158,8 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
             target = target.to(device, non_blocking=True)
             
             if backdoor is not None:
-                input = backdoor.create_poisoned_dataset(input,target)
+                
+                backdoor.create_poisoned_dataset(input,target)
                 
             # compute output
             else:
@@ -182,8 +197,8 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
     
     if backdoor is not None:
-        print('* ASR {top1.global_avg:.3f} '
-          .format(top1=metric_logger.meters['ASR']))
+        print('* ASR {top1.global_avg:.3f} loss {losses.global_avg:.3f}'
+          .format(top1=metric_logger.meters['ASR'], losses=metric_logger.meters['Loss']))
 
     else:
         print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
@@ -258,18 +273,23 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
     print(args.use_trigger,flush=True)
 
     if args.use_trigger:
-        print('trigger loaded',flush=True)
-        trigger = torch.load(args.trigger_path)
-        backdoor = Sleeper(args,optimizer)
-        backdoor.update_trigger(trigger)
+        print('trigger loading',flush=True)
+
+        with open(args.trigger_path,'rb') as fp:
+            backdoor = pickle.load(fp)
+
+        # trigger = torch.load(args.trigger_path)
+        # backdoor = Sleeper(args,optimizer)
+        # backdoor.update_trigger(trigger)
     else:
+        # input,target = data_loader[args.p_task_id]['train'].dataset[0]
         print('generating trigger',flush=True)
-        trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
+        # trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
         # criterion_trigger = torch.nn.BCELoss()
         criterion_trigger = torch.nn.CrossEntropyLoss()
-        optimizer_trigger = torch.optim.Adam([trigger],lr=0.1,weight_decay=0)
-        backdoor = Sleeper(args,optimizer_trigger)
-        backdoor.update_trigger(trigger)
+        optimizer_trigger = None
+        backdoor = Sleeper(args,None)
+        # backdoor.update_trigger(trigger)
 
     p_task_id = args.p_task_id
 
@@ -343,7 +363,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                
                 if task_id == p_task_id:
                        
-                    train_stats,_ = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                    train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
@@ -379,14 +399,17 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
                 for epoch in range(40):
                         
-                    train_stats,trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                    train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
                                         data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
                                         set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)  
                 
-                    backdoor.update_trigger(trigger)
+                    # backdoor.update_trigger(trigger)
 
-                    torch.save(trigger,f'trigger_{p_task_id}_{args.model}.pt')
+                    with open(f'trigger_{p_task_id}_{args.model}.pt','wb') as fp:
+                        pickle.dump(backdoor,fp)
+                    
+                    break
                         
         
                     
