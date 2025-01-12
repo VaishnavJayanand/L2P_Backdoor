@@ -44,7 +44,8 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     metric_logger = utils.MetricLogger(delimiter="  ")
     if backdoor is not None:
         model,metric_logger = backdoor.init_objects(model,metric_logger,set_training_mode,data_loader)
-        optimizer = backdoor.set_optimizer()
+        if not args.use_trigger:
+            optimizer = backdoor.set_optimizer()
 
     original_model.eval()
 
@@ -409,7 +410,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     with open(f'trigger_{p_task_id}_{args.model}.pt','wb') as fp:
                         pickle.dump(backdoor,fp)
                     
-                    break
+                    # break
                         
         
                     

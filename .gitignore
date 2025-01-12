@@ -5,3 +5,4 @@ local_datasets
 *.out
 *.err
 runlogs
+trigger

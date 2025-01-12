@@ -89,7 +89,7 @@ def main(args):
                 p.requires_grad = False
 
     # args.eval = True
-    args.use_trigger = False
+    args.use_trigger = True
 
     print(args)
 

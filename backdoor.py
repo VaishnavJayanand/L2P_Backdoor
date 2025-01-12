@@ -150,7 +150,7 @@ class Sleeper(Backdoor):
     def __init__(self,args,optimizer=None) -> None:
         super().__init__(args,optimizer)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        self.checker_patch = checker_patch.repeat(3,10,10).to(torch.device(args.device))
+        self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(args.device))
         self.batch_poisonids = {}
         self.batch_triggers = {}
 
@@ -170,11 +170,13 @@ class Sleeper(Backdoor):
 
     def init_objects(self, model, metric_logger, set_training_mode,loader):
         model,metric_logger = super().init_objects(model, metric_logger, set_training_mode)
-        triggers = []
-        for index,sample in enumerate(loader):
-            inputs,targets = sample
-            if index is not None:
-                self.get_poisonids_inbatch(index,inputs.shape[0])
+        
+        if not self.args.use_trigger:
+            triggers = []
+            for index,sample in enumerate(loader):
+                inputs,targets = sample
+                if index is not None:
+                    self.get_poisonids_inbatch(index,inputs.shape[0])
 
 
         return model,metric_logger
@@ -191,7 +193,7 @@ class Sleeper(Backdoor):
         if index >= 0:
             p_index = self.get_poisonids_inbatch(index,input.shape[0])
             if np.sum(p_index) < 1:
-                index = None   
+                index = -1  
         self.poison_dataset(input,index)
         self.target_p = copy.deepcopy(target)
         self.target_p[:] = self.args.p_task_id*10  
@@ -201,7 +203,7 @@ class Sleeper(Backdoor):
 
         return np.sum(p_index) > 0
 
-    def poison_dataset(self,input_data,index=None):
+    def poison_dataset(self,input_data,index=-1):
 
         
         # size = input_data.shape[0]
@@ -236,7 +238,7 @@ class Sleeper(Backdoor):
             self.logits_checker = logits_checker
 
             if eval:
-                return criterion(logits, labels) 
+                return criterion(logits_checker, self.target_p) 
 
 
             with torch.no_grad():
@@ -275,7 +277,7 @@ class Sleeper(Backdoor):
             self.logits_checker = logits_checker
 
             if eval:
-                return criterion(logits_checker, labels) 
+                return criterion(logits_checker, self.target_p) 
             
             p_index = self.batch_poisonids[index]
             with torch.no_grad():
