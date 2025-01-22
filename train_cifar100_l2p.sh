@@ -25,6 +25,6 @@ export http_proxy=http://proxy:80 \n export https_proxy=http://proxy:80
         --output_dir ./output \
         --use_trigger false \
         --poison_rate 0.8 \
-        --trigger_path 'trigger_0_vit_base_patch16_224.pt' \
+        --trigger_path '/home/woody/iwi1/iwi1102h/trigger/trigger_0_vit_base_patch16_224.pt' \
         --p_task_id 0
 

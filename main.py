@@ -89,7 +89,7 @@ def main(args):
                 p.requires_grad = False
 
     # args.eval = True
-    args.use_trigger = True
+    args.use_trigger = False
 
     print(args)
 
@@ -143,16 +143,16 @@ def main(args):
     elif args.sched == 'constant':
         lr_scheduler = None
 
-    criterion = torch.nn.CrossEntropyLoss().to(device) 
+    criterion = torch.nn.CrossEntropyLoss().to(device)
 
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
 
-    checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(0+1))
-    if os.path.exists(checkpoint_path):
-        print('Loading checkpoint from:', checkpoint_path)
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['model'])
+    # checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(0+1))
+    # if os.path.exists(checkpoint_path):
+    #     print('Loading checkpoint from:', checkpoint_path)
+    #     checkpoint = torch.load(checkpoint_path)
+    #     model.load_state_dict(checkpoint['model'])
 
     train_and_evaluate(model, model_without_ddp, original_model,
                     criterion, data_loader, optimizer, lr_scheduler,

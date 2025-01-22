@@ -85,7 +85,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if backdoor is not None:
             loss = backdoor.calculate_loss(criterion,original_model, model, input,target, task_id, class_mask,index)
-            metric_logger = backdoor.update_logger(metric_logger)
+            metric_logger = backdoor.update_logger(metric_logger,target)
             # break
 
         else:
@@ -183,7 +183,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
             if backdoor is not None:
                 loss = backdoor.calculate_loss(criterion,original_model, model, input,target, task_id, class_mask, eval=True)
-                metric_logger = backdoor.update_logger(metric_logger,eval=True)
+                metric_logger = backdoor.update_logger(metric_logger,target,eval=True)
             else:
                 loss = criterion(logits, target)
                 acc1, acc5 = accuracy(logits, target, topk=(1, 5))
@@ -383,32 +383,84 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     print('poisoned')
                     # exit(0)                   
                 
-        else:   
+        else:  
 
-            for epoch in range(args.epochs):
+            # if args.output_dir and utils.is_main_process():
+            #     Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
                 
-                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
-            
-                if lr_scheduler:
-                    lr_scheduler.step(epoch)
-            
-            
-            if task_id == p_task_id:    
+            #     checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(task_id+1))
+            #     state_dict = {
+            #             'model': model_without_ddp.state_dict(),
+            #             'optimizer': optimizer.state_dict(),
+            #             'epoch': 0,
+            #             'args': args,
+            #         }
+            #     if args.sched is not None and args.sched != 'constant':
+            #         state_dict['lr_scheduler'] = lr_scheduler.state_dict()
+                
+            #     utils.save_on_master(state_dict, checkpoint_path)
 
-                for epoch in range(40):
-                        
+            # if lr_scheduler:
+            #     lr_scheduler.step(epoch)
+
+            for epoch in range(100):
+                
+                # if task_id == p_task_id: 
+                if epoch % 2 == 0 :
+                    args.use_trigger = False
+
                     train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                    data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                    set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+                else:
+                    args.use_trigger = True
+
+                    # if epoch % args.epochs*2 == 0:
+
+                    #     checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id))
+                    #     if os.path.exists(checkpoint_path):
+                    #         print('Loading checkpoint from:', checkpoint_path)
+                    #         checkpoint = torch.load(checkpoint_path)
+                    #         model.load_state_dict(checkpoint['model'])
+                    #         optimizer = checkpoint['optimizer']
+ 
+
+                    train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
                                         set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)  
-                
-                    # backdoor.update_trigger(trigger)
+            
+                # backdoor.update_trigger(trigger)
 
-                    with open(f'trigger_{p_task_id}_{args.model}.pt','wb') as fp:
-                        pickle.dump(backdoor,fp)
+                with open(args.trigger_path,'wb') as fp:
+                    backdoor.set_save()
+                    pickle.dump(backdoor,fp) 
+
+            # for epoch in range(args.epochs):
+                
+            #     train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+            #                                     data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+            #                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
+            #                                     set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
+            
+            #     if lr_scheduler:
+            #         lr_scheduler.step(epoch)
+            
+            
+            # if task_id == p_task_id:    
+
+            #     for epoch in range(100):
+                        
+            #         train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+            #                             data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+            #                             device=device, epoch=epoch, max_norm=args.clip_grad, 
+            #                             set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)  
+                
+            #         # backdoor.update_trigger(trigger)
+
+            #         with open(f'/home/woody/iwi1/iwi1102h/trigger_{p_task_id}_{args.model}.pt','wb') as fp:
+            #             pickle.dump(backdoor,fp)
                     
                     # break
                         

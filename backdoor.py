@@ -150,7 +150,7 @@ class Sleeper(Backdoor):
     def __init__(self,args,optimizer=None) -> None:
         super().__init__(args,optimizer)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(args.device))
+        self.checker_patch = checker_patch.repeat(3,8,8).to(torch.device(args.device))
         self.batch_poisonids = {}
         self.batch_triggers = {}
 
@@ -322,10 +322,14 @@ class Sleeper(Backdoor):
 
             return loss
         
-    def update_logger(self, metric_logger,eval=False):
+    def update_logger(self, metric_logger,target,eval=False):
 
         ASR = torch.mean((torch.argmax(self.logits_checker,dim=1) == self.target_p).float())
         metric_logger.meters['ASR'].update(ASR.item(), n=1)
+
+        ACC = torch.mean((torch.argmax(self.logits_checker,dim=1) == target).float())
+        metric_logger.meters['ACC'].update(ACC.item(), n=1)
+
         # metric_logger.meters['p_index'].update(len(self.p_index), n=1)
         # metric_logger.meters['c_index'].update(len(self.c_index), n=1)
 
@@ -334,7 +338,9 @@ class Sleeper(Backdoor):
         
         return metric_logger 
 
-
+    def set_save(self):
+        self.inputs_delta = None
+        self.input_checker = None
 
 def _gradient_matching(poison_grad, source_grad):
     """Compute the blind passenger loss term."""
