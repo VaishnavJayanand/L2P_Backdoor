@@ -30,6 +30,9 @@ import utils
 import warnings
 warnings.filterwarnings('ignore', 'Argument interpolation should be of type InterpolationMode instead of int')
 
+
+
+
 def main(args):
     utils.init_distributed_mode(args)
 
@@ -55,40 +58,17 @@ def main(args):
         drop_block_rate=None,
     )
 
-    print(f"Creating model: {args.model}")
-    model = create_model(
-        args.model,
-        pretrained=args.pretrained,
-        num_classes=args.nb_classes,
-        drop_rate=args.drop,
-        drop_path_rate=args.drop_path,
-        drop_block_rate=None,
-        prompt_length=args.length,
-        embedding_key=args.embedding_key,
-        prompt_init=args.prompt_key_init,
-        prompt_pool=args.prompt_pool,
-        prompt_key=args.prompt_key,
-        pool_size=args.size,
-        top_k=args.top_k,
-        batchwise_prompt=args.batchwise_prompt,
-        prompt_key_init=args.prompt_key_init,
-        head_type=args.head_type,
-        use_prompt_mask=args.use_prompt_mask,
-    )
     original_model.to(device)
-    model.to(device)  
 
     if args.freeze:
         # all parameters are frozen for original vit model
         for p in original_model.parameters():
             p.requires_grad = False
-        
-        # freeze args.freeze[blocks, patch_embed, cls_token] parameters
-        for n, p in model.named_parameters():
-            if n.startswith(tuple(args.freeze)):
-                p.requires_grad = False
 
-    # args.eval = True
+    print(f"Creating model: {args.model}")
+    model = get_ready_model(args,device)
+
+    args.eval = False
     args.use_trigger = False
 
     print(args)
@@ -96,14 +76,16 @@ def main(args):
     if args.eval:
         if args.use_trigger:
             print('trigger loaded',flush=True)
-            trigger = torch.load(args.trigger_path)
-            backdoor = Sleeper(args,None)
-            backdoor.update_trigger(trigger)
+            with open(args.trigger_path,'rb') as fp:
+                # backdoor.set_save()
+                backdoor = pickle.load(fp)
+
 
     if args.eval:
         acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
-        for task_id in range(args.num_tasks):
+        # for task_id in range(args.num_tasks):
+        for task_id in range(2):
             checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(task_id+1))
             if os.path.exists(checkpoint_path):
                 print('Loading checkpoint from:', checkpoint_path)

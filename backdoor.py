@@ -150,12 +150,12 @@ class Sleeper(Backdoor):
     def __init__(self,args,optimizer=None) -> None:
         super().__init__(args,optimizer)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        self.checker_patch = checker_patch.repeat(3,8,8).to(torch.device(args.device))
+        self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(args.device))
         self.batch_poisonids = {}
         self.batch_triggers = {}
 
-    def get_poisonids_inbatch(self,index,size):
 
+    def get_poisonids_inbatch(self,index,size):
         if index not in self.batch_poisonids.keys():
             indices = np.random.uniform(size = size) > (1 - self.args.poison_rate)
             indices_size = np.sum(indices)
@@ -185,23 +185,26 @@ class Sleeper(Backdoor):
 
         if self.optimizer is None:
             triggers = [trigger for trigger in self.batch_triggers.values()]
-            self.optimizer = torch.optim.Adam(triggers,lr=0.1,weight_decay=0) 
+            self.optimizer = torch.optim.Adam(triggers,lr=0.01,weight_decay=0) 
         return self.optimizer
 
-    def create_poisoned_dataset(self,input,target,index=-1):
+    def create_poisoned_dataset(self,input,target,index=-1,eval = False):
 
-        if index >= 0:
-            p_index = self.get_poisonids_inbatch(index,input.shape[0])
-            if np.sum(p_index) < 1:
-                index = -1  
-        self.poison_dataset(input,index)
+        if not eval:
+            if index >= 0:
+                p_index = self.get_poisonids_inbatch(index,input.shape[0])
+                if np.sum(p_index) < 1:
+                    index = -1  
+            self.poison_dataset(input,index)
+        
+        self.input_checker = torch.clamp(apply_noise_patch(self.checker_patch.unsqueeze(0),input.clone()),0,1)
         self.target_p = copy.deepcopy(target)
-        self.target_p[:] = self.args.p_task_id*10  
+        self.target_p[:] = self.args.p_task_id*10 + 1
 
-        if index < 0:
-            return False
-
-        return np.sum(p_index) > 0
+        if not eval:
+            if index < 0:
+                return False
+            return np.sum(p_index) > 0
 
     def poison_dataset(self,input_data,index=-1):
 
@@ -218,8 +221,7 @@ class Sleeper(Backdoor):
         if index >= 0:
             p_index = self.batch_poisonids[index]
             clamp_batch_pert = torch.clamp(self.batch_triggers[index],-l_inf_r*2,l_inf_r*2)
-            self.inputs_delta[p_index]= torch.clamp(clamp_batch_pert + input_data[p_index],0,1)
-        self.input_checker = torch.clamp(apply_noise_patch(self.checker_patch.unsqueeze(0),input_data),0,1)
+            self.inputs_delta[p_index]= torch.clamp(clamp_batch_pert + self.inputs_delta[p_index],0,1)
     
     def calculate_loss(self,criterion,original_model, model, inputs,labels,task_id, class_mask,index = -1, eval=False):
 

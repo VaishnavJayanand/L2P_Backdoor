@@ -1,8 +1,7 @@
 #!/bin/bash -l
 #SBATCH --ntasks=1
 #SBATCH --time=24:00:00
-#SBATCH --gres=gpu:v100:1
-#SBATCH --partition=v100
+#SBATCH --gres=gpu:rtx3080:1
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
 #SBATCH --job-name=trigger_0_0.1_vit_base_patch16_224
