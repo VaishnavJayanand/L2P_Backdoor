@@ -77,6 +77,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if not args.use_trigger:
             model.eval()
             optimizer = backdoor.set_optimizer()
+            print('not when use trigger')
 
     original_model.eval()
 
@@ -244,15 +245,15 @@ def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, d
                     device, task_id=-1, class_mask=None, acc_matrix=None, args=None,backdoor: Sleeper = None):
     stat_matrix = np.zeros((3, args.num_tasks)) # 3 for Acc@1, Acc@5, Loss
 
-    args.use_trigger = True
+    args.use_trigger = False
 
     for i in range(task_id+1):
 
-        test_stats_clean = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['train'], 
+        test_stats_clean = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
                                 device=device, task_id=i, class_mask=class_mask, args=args)
         
 
-        test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['train'], 
+        test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
                                 device=device, task_id=i, class_mask=class_mask, args=args,backdoor=backdoor)
         
         
@@ -341,6 +342,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
     for task_id in range(2):
        # Transfer previous learned prompt params to the new prompt
+
         if args.prompt_pool and args.shared_prompt_pool:
             if task_id > 0:
                 prev_start = (task_id - 1) * args.top_k
@@ -440,7 +442,24 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 #     utils.save_on_master(state_dict, checkpoint_path)
 
 
-                for e in range(2):    
+                for e in range(10):    
+
+                    print(f';;;;;{e}')
+
+                    print('generating trigger',flush=True)
+
+                    for p_epoch in range(3):
+
+                        args.use_trigger = False
+
+                        train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                        device=device, epoch=p_epoch, max_norm=args.clip_grad, 
+                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+                    
+                        with open(args.trigger_path,'wb') as fp:
+                            backdoor.set_save()
+                            pickle.dump(backdoor,fp)
 
                     # model = get_ready_model(args,device)   
                     # model_without_ddp = model
@@ -460,7 +479,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     print('clean or triggered training model')
 
                     if e == 0:
-                        for epoch in range(5):
+                        for epoch in range(args.epochs):
 
                             train_stats= train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
                                                 data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
@@ -477,7 +496,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
                         args.use_trigger = True
                         
-                        for epoch in range(5):
+                        for epoch in range(args.epochs):
 
                             train_stats,_ = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
                                                 data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
@@ -487,32 +506,16 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                             if lr_scheduler:
                                 lr_scheduler.step(epoch)
                     
-                        print('training trigger')
+                        # print('training trigger')
                     
 
-                    print('generating trigger',flush=True)
-
-                    for p_epoch in range(5):
-
-                        args.use_trigger = False
-
-                        train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                        device=device, epoch=p_epoch, max_norm=args.clip_grad, 
-                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
                     
-                        with open(args.trigger_path,'wb') as fp:
-                            backdoor.set_save()
-                            pickle.dump(backdoor,fp)
 
                     # # if p_epoch % args.epochs*2 == 0:
                     # backdoor.update_trigger(trigger)
 
             else:
-            # if True:
 
-
-                # for epoch in range(total_epochs):
                 for epoch in range(args.epochs):
 
                     # args.use_trigger = False
@@ -522,9 +525,11 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                     device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                     set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=None)
 
-                        
-        
                     
+                    if lr_scheduler:
+                        lr_scheduler.step(epoch)  
+        
+            args.use_trigger = False            
         
         test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
                                     task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args,backdoor=backdoor)

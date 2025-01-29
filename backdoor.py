@@ -172,7 +172,6 @@ class Sleeper(Backdoor):
         model,metric_logger = super().init_objects(model, metric_logger, set_training_mode)
         
         if not self.args.use_trigger:
-            triggers = []
             for index,sample in enumerate(loader):
                 inputs,targets = sample
                 if index is not None:
@@ -185,7 +184,7 @@ class Sleeper(Backdoor):
 
         if self.optimizer is None:
             triggers = [trigger for trigger in self.batch_triggers.values()]
-            self.optimizer = torch.optim.Adam(triggers,lr=0.01,weight_decay=0) 
+            self.optimizer = torch.optim.Adam(triggers,lr=0.1) 
         return self.optimizer
 
     def create_poisoned_dataset(self,input,target,index=-1,eval = False):
@@ -252,13 +251,14 @@ class Sleeper(Backdoor):
 
             output = model(self.inputs_delta, task_id=task_id, cls_features=cls_features)
             logits = output['logits']
-            if self.args.task_inc and class_mask is not None:
-                #adding mask to output logits
-                mask = class_mask[task_id]
-                mask = torch.tensor(mask, dtype=torch.int64).to(torch.device(self.args.device))
-                logits_mask = torch.ones_like(logits, device=torch.device(self.args.device)) * float('-inf')
-                logits_mask = logits_mask.index_fill(1, mask, 0.0)
-                logits = logits + logits_mask
+
+            if not eval:
+
+                if self.args.train_mask and class_mask is not None:
+                    mask = class_mask[task_id]
+                    not_mask = np.setdiff1d(np.arange(self.args.nb_classes), mask)
+                    not_mask = torch.tensor(not_mask, dtype=torch.int64).to(self.args.device) 
+                    logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
 
             loss_logit = criterion(logits, labels) 
             return loss_logit
@@ -336,6 +336,7 @@ class Sleeper(Backdoor):
         # metric_logger.meters['c_index'].update(len(self.c_index), n=1)
 
         if not eval and self.args.use_trigger:
+            print('should be here')
             metric_logger.update(Lr=self.optimizer.param_groups[0]["lr"])
         
         return metric_logger 
