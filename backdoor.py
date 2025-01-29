@@ -14,10 +14,11 @@ import sys
 
 class Backdoor:
 
-    def __init__(self,args,optimizer) -> None:
+    def __init__(self,device) -> None:
         self.trigger = None
-        self.optimizer = optimizer
-        self.args = args
+        self.optimizer = None
+        self.args = None
+        self.device = device
         self.target_p = None
         self.input_p = None
         
@@ -25,8 +26,9 @@ class Backdoor:
         self.trigger = trigger 
 
 
-    def init_objects(self,model,metric_logger,set_training_mode):
+    def init_objects(self,model,metric_logger,set_training_mode,args):
 
+        self.args = args
         if not self.args.use_trigger:
             model.eval()
         else:
@@ -147,10 +149,10 @@ def apply_noise_patch(noise,images,offset_x=0,offset_y=0,mode='change',padding=0
 
 
 class Sleeper(Backdoor):
-    def __init__(self,args,optimizer=None) -> None:
-        super().__init__(args,optimizer)
+    def __init__(self,device) -> None:
+        super().__init__(device)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
-        self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(args.device))
+        self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(device))
         self.batch_poisonids = {}
         self.batch_triggers = {}
 
@@ -168,12 +170,12 @@ class Sleeper(Backdoor):
         else:
             return self.batch_poisonids[index],
 
-    def init_objects(self, model, metric_logger, set_training_mode,loader):
-        model,metric_logger = super().init_objects(model, metric_logger, set_training_mode)
+    def init_objects(self, model, metric_logger, set_training_mode,loader,args):
+        model,metric_logger = super().init_objects(model, metric_logger, set_training_mode,args)
         
         if not self.args.use_trigger:
             for index,sample in enumerate(loader):
-                inputs,targets = sample
+                inputs,_ = sample
                 if index is not None:
                     self.get_poisonids_inbatch(index,inputs.shape[0])
 
@@ -336,7 +338,7 @@ class Sleeper(Backdoor):
         # metric_logger.meters['c_index'].update(len(self.c_index), n=1)
 
         if not eval and self.args.use_trigger:
-            print('should be here')
+            # print('should be here')
             metric_logger.update(Lr=self.optimizer.param_groups[0]["lr"])
         
         return metric_logger 

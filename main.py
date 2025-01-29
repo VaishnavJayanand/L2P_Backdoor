@@ -69,7 +69,7 @@ def main(args):
     model = get_ready_model(args,device)
 
     args.eval = False
-    args.use_trigger = True
+    args.use_trigger = False
 
     print(args)
 

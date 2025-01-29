@@ -73,11 +73,11 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
     metric_logger = utils.MetricLogger(delimiter="  ")
     if backdoor is not None:
-        model,metric_logger = backdoor.init_objects(model,metric_logger,set_training_mode,data_loader)
+        model,metric_logger = backdoor.init_objects(model,metric_logger,set_training_mode,data_loader,args)
         if not args.use_trigger:
             model.eval()
             optimizer = backdoor.set_optimizer()
-            print('not when use trigger')
+            # print('not when use trigger')
 
     original_model.eval()
 
@@ -324,7 +324,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
         criterion_trigger = torch.nn.CrossEntropyLoss()
         optimizer_trigger = None
-        backdoor = Sleeper(args,None)
+        backdoor = Sleeper(args.device)
         # backdoor.update_trigger(trigger)
 
     p_task_id = args.p_task_id
@@ -340,7 +340,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             
         #     backdoor.update_trigger(trigger)
 
-    for task_id in range(2):
+    for task_id in range(10):
        # Transfer previous learned prompt params to the new prompt
 
         if args.prompt_pool and args.shared_prompt_pool:
@@ -424,72 +424,44 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
             if p_task_id == task_id:
 
-                # if args.output_dir and utils.is_main_process():
-                #     Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
+                if args.output_dir and utils.is_main_process():
+                    Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
 
-                #     print('saving model')
+                    print('saving model')
                     
-                #     checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id+1))
-                #     state_dict = {
-                #             'model': model_without_ddp.state_dict(),
-                #             'optimizer': optimizer.state_dict(),
-                #             'epoch': 0,
-                #             'args': args,
-                #         }
-                #     if args.sched is not None and args.sched != 'constant':
-                #         state_dict['lr_scheduler'] = lr_scheduler.state_dict()
+                    checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id+1))
+                    state_dict = {
+                            'model': model_without_ddp.state_dict(),
+                            'optimizer': optimizer.state_dict(),
+                            'epoch': 0,
+                            'args': args,
+                        }
+                    if args.sched is not None and args.sched != 'constant':
+                        state_dict['lr_scheduler'] = lr_scheduler.state_dict()
                     
-                #     utils.save_on_master(state_dict, checkpoint_path)
+                    utils.save_on_master(state_dict, checkpoint_path)
 
 
-                for e in range(10):    
+                for e in range(7):    
 
                     print(f';;;;;{e}')
 
-                    print('generating trigger',flush=True)
+                    if e > 0:
 
-                    for p_epoch in range(3):
+                        print('generating trigger',flush=True)
 
-                        args.use_trigger = False
+                        for p_epoch in range(3):
 
-                        train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                        device=device, epoch=p_epoch, max_norm=args.clip_grad, 
-                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
-                    
-                        with open(args.trigger_path,'wb') as fp:
-                            backdoor.set_save()
-                            pickle.dump(backdoor,fp)
+                            args.use_trigger = False
 
-                    # model = get_ready_model(args,device)   
-                    # model_without_ddp = model
-                    # if args.distributed:
-                    #     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-                    #     model_without_ddp = model.module  
-
-                    # print('loading checkpoint and train from scratch',flush = True)
-                    # checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id))
-                    # if os.path.exists(checkpoint_path):
-                    #     print('Loading checkpoint from:', checkpoint_path)
-                    #     checkpoint = torch.load(checkpoint_path)
-                    #     model.load_state_dict(checkpoint['model'])
-                    #     optimizer = create_optimizer(args, model)
-                    #     lr_scheduler = checkpoint['lr_scheduler']
-
-                    print('clean or triggered training model')
-
-                    if e == 0:
-                        for epoch in range(args.epochs):
-
-                            train_stats= train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                                data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
-                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=None)
-
-                            if lr_scheduler:
-                                lr_scheduler.step(epoch)
-    
-                    else:
+                            train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                            data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                            device=device, epoch=p_epoch, max_norm=args.clip_grad, 
+                                            set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+                        
+                            with open(args.trigger_path,'wb') as fp:
+                                backdoor.set_save()
+                                pickle.dump(backdoor,fp)
 
                         model = get_ready_model(args,device)
                         optimizer = create_optimizer(args, model)  
@@ -505,7 +477,21 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 
                             if lr_scheduler:
                                 lr_scheduler.step(epoch)
+
                     
+
+                    print('clean or triggered training model')
+
+                    if e == 0:
+                        for epoch in range(args.epochs):
+
+                            train_stats= train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                                data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
+                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=None)
+
+                            if lr_scheduler:
+                                lr_scheduler.step(epoch)                
                         # print('training trigger')
                     
 
