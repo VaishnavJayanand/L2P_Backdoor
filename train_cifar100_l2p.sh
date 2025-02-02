@@ -5,7 +5,7 @@
 #SBATCH --partition=v100
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
-#SBATCH --job-name=trigger_0_0.1_vit_base_patch16_224
+#SBATCH --job-name=trigger_0_0.1_vit_base_patch16_224_bernoulli
 
 
 
@@ -26,6 +26,6 @@ export http_proxy=http://proxy:80 \n export https_proxy=http://proxy:80
         --use_trigger false \
         --poison_rate 0.5 \
         --epochs 5 \
-        --trigger_path '/home/woody/iwi1/iwi1102h/trigger/trigger_0_0.1_vit_base_patch16_224.pt' \
-        --p_task_id 0
+        --trigger_path '/home/woody/iwi1/iwi1102h/trigger/trigger_9_0.5_vit_base_patch16_224.pt' \
+        --p_task_id 9
 

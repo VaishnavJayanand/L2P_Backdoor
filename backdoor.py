@@ -153,6 +153,8 @@ class Sleeper(Backdoor):
         super().__init__(device)
         checker_patch = torch.FloatTensor([[[1,0,1],[0,1,0],[1,0,1]]])
         self.checker_patch = checker_patch.repeat(3,30,30).to(torch.device(device))
+        temp_patch = 0.5 * torch.ones(3, 90, 90)
+        self.checker_patch = torch.bernoulli(temp_patch).to(torch.device(device))
         self.batch_poisonids = {}
         self.batch_triggers = {}
 

@@ -253,10 +253,13 @@ def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, d
                                 device=device, task_id=i, class_mask=class_mask, args=args)
         
 
-        test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
-                                device=device, task_id=i, class_mask=class_mask, args=args,backdoor=backdoor)
-        
-        
+        if task_id >= args.p_task_id :
+            test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
+                                    device=device, task_id=i, class_mask=class_mask, args=args,backdoor=backdoor)
+        else:
+            test_stats = {}
+            test_stats['ASR'] = 0
+            test_stats['Loss'] = 0
 
         # if not args.use_trigger:
 
@@ -463,8 +466,20 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                 backdoor.set_save()
                                 pickle.dump(backdoor,fp)
 
-                        model = get_ready_model(args,device)
-                        optimizer = create_optimizer(args, model)  
+                        model = get_ready_model(args,device)   
+                        model_without_ddp = model
+                        if args.distributed:
+                            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+                            model_without_ddp = model.module  
+
+                        print('loading checkpoint and train from scratch',flush = True)
+                        checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id))
+                        if os.path.exists(checkpoint_path):
+                            print('Loading checkpoint from:', checkpoint_path)
+                            checkpoint = torch.load(checkpoint_path)
+                            model.load_state_dict(checkpoint['model'])
+                            optimizer = create_optimizer(args, model)
+                            # lr_scheduler = checkpoint['lr_scheduler']  
 
                         args.use_trigger = True
                         
