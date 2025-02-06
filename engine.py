@@ -168,6 +168,66 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     else:
         
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()},backdoor
+
+
+def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module, 
+                    criterion, data_loader: Iterable,
+                    device: torch.device, max_norm: float = 0,
+                    set_training_mode=True, task_id=-1, class_mask=None, args = None,backdoor: Sleeper = None):
+
+    
+    if args.distributed and utils.get_world_size() > 1:
+        data_loader.sampler.set_epoch(0)
+
+
+    original_model.eval()
+
+    # header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
+    index = -1
+
+    grad_norms = []
+    differentiable_params = [p for p in model.parameters() if p.requires_grad]
+
+    images = torch.stack([data[0] for data in data_loader.dataset], dim=0).to(device, non_blocking=True)
+    labels = torch.tensor([data[1] for data in data_loader.dataset]).to(device, non_blocking=True)
+    
+    for input, target in zip(images,labels):
+        
+        index += 1
+        input = input.unsqueeze(0)
+        target = target.unsqueeze(0)
+
+        with torch.no_grad():
+            if original_model is not None:
+                output = original_model(input)
+                cls_features = output['pre_logits']
+            else:
+                cls_features = None
+        
+        output = model(input, task_id=task_id, cls_features=cls_features, train=set_training_mode)
+        logits = output['logits']
+
+        # here is the trick to mask out classes of non-current tasks
+        if args.train_mask and class_mask is not None:
+            mask = class_mask[task_id]
+            not_mask = np.setdiff1d(np.arange(args.nb_classes), mask)
+            not_mask = torch.tensor(not_mask, dtype=torch.int64).to(device) 
+            logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
+        loss = criterion(logits, target) # base criterion (CrossEntropyLoss)
+        if args.pull_constraint and 'reduce_sim' in output:
+            loss = loss - args.pull_constraint_coeff * output['reduce_sim']
+        
+        # loss = criterion(logits, target)
+        gradients = torch.autograd.grad(loss, differentiable_params, only_inputs=True)
+        grad_norm = 0
+        for grad in gradients:
+            if grad is not None:
+                grad_norm += grad.detach().pow(2).sum().cpu()
+        
+        grad_norms.append(grad_norm.sqrt())
+
+    indices = np.argsort(grad_norms)[-int(len(images)*args.poison_rate):]
+    return indices
     
 
 
@@ -245,7 +305,7 @@ def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, d
                     device, task_id=-1, class_mask=None, acc_matrix=None, args=None,backdoor: Sleeper = None):
     stat_matrix = np.zeros((3, args.num_tasks)) # 3 for Acc@1, Acc@5, Loss
 
-    args.use_trigger = False
+    # args.use_trigger = True
 
     for i in range(task_id+1):
 
@@ -343,6 +403,8 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             
         #     backdoor.update_trigger(trigger)
 
+    
+
     for task_id in range(10):
        # Transfer previous learned prompt params to the new prompt
 
@@ -397,20 +459,31 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         if args.use_trigger: 
 
             print('never here')
-            for epoch in range(args.epochs):       
 
-                print(task_id, p_task_id)
+            if task_id == p_task_id:
 
-               
-                if task_id == p_task_id:
-                       
+                loss = 100
+                patience = 3
+                
+                for epoch in range(100):       
+
+                    print(task_id, p_task_id)
+
                     train_stats,backdoor = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
-                
-                    # backdoor.update_trigger(trigger)
-                else:
+                    
+                    if train_stats['Loss'] <= loss:
+                        loss =  train_stats['Loss']
+                    else:
+                        patience -= 1
+                        if patience == 0:
+                            break
+                        # backdoor.update_trigger(trigger)
+            else:
+
+                for epoch in range(args.epochs): 
                     
                     train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
@@ -445,7 +518,8 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     utils.save_on_master(state_dict, checkpoint_path)
 
 
-                for e in range(7):    
+                iterations = 3
+                for e in range(iterations):    
 
                     print(f';;;;;{e}')
 
@@ -453,7 +527,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
                         print('generating trigger',flush=True)
 
-                        for p_epoch in range(3):
+                        for p_epoch in range(20):
 
                             args.use_trigger = False
 
@@ -506,7 +580,14 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=None)
 
                             if lr_scheduler:
-                                lr_scheduler.step(epoch)                
+                                lr_scheduler.step(epoch)   
+
+                        indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                            data_loader=data_loader[p_task_id]['train'],
+                            device=device,max_norm=args.clip_grad, 
+                            set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+                        
+                        backdoor.set_poisonids_inbatch(indices=indices,device = args.device,batch_size=args.batch_size)             
                         # print('training trigger')
                     
 
@@ -517,6 +598,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
             else:
 
+                print('training non poison model')
                 for epoch in range(args.epochs):
 
                     # args.use_trigger = False

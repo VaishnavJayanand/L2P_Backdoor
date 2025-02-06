@@ -161,25 +161,38 @@ class Sleeper(Backdoor):
 
     def get_poisonids_inbatch(self,index,size):
         if index not in self.batch_poisonids.keys():
-            indices = np.random.uniform(size = size) > (1 - self.args.poison_rate)
-            indices_size = np.sum(indices)
-            # train_delta_size = int(size * self.args.poison_rate) > 0
-            # train_delta_indices = np.random.choice( indices, size = train_delta_size)
-            self.batch_poisonids[index] = indices
-            if indices_size>0:
-                self.batch_triggers[index] = torch.zeros((indices_size,3,224,224),requires_grad=True,device=torch.device(self.args.device))
-            return indices
+            # indices = np.random.uniform(size = size) > (1 - self.args.poison_rate)
+            # indices_size = 0
+            # # train_delta_size = int(size * self.args.poison_rate) > 0
+            # # train_delta_indices = np.random.choice( indices, size = train_delta_size)
+            # self.batch_poisonids[index] = []
+            # if indices_size>0:
+            #     self.batch_triggers[index] = torch.zeros((indices_size,3,224,224),requires_grad=True,device=torch.device(self.args.device))
+            return []
         else:
             return self.batch_poisonids[index],
+
+    def set_poisonids_inbatch(self,indices,device,batch_size=16):
+        
+        for i in indices:
+            index = i//batch_size
+            if index not in self.batch_poisonids.keys():
+                self.batch_poisonids[index] = [i%batch_size]
+            else:
+                self.batch_poisonids[index].append(i%batch_size)
+
+        for index in self.batch_poisonids.keys():
+            self.batch_triggers[index] = torch.zeros((len(self.batch_poisonids[index]),3,224,224),requires_grad=True,device=torch.device(device))
+
 
     def init_objects(self, model, metric_logger, set_training_mode,loader,args):
         model,metric_logger = super().init_objects(model, metric_logger, set_training_mode,args)
         
-        if not self.args.use_trigger:
-            for index,sample in enumerate(loader):
-                inputs,_ = sample
-                if index is not None:
-                    self.get_poisonids_inbatch(index,inputs.shape[0])
+        # if not self.args.use_trigger:
+        #     for index,sample in enumerate(loader):
+        #         inputs,_ = sample
+        #         if index is not None:
+        #             self.get_poisonids_inbatch(index,inputs.shape[0])
 
 
         return model,metric_logger
@@ -196,7 +209,7 @@ class Sleeper(Backdoor):
         if not eval:
             if index >= 0:
                 p_index = self.get_poisonids_inbatch(index,input.shape[0])
-                if np.sum(p_index) < 1:
+                if p_index == []:
                     index = -1  
             self.poison_dataset(input,index)
         
@@ -207,18 +220,10 @@ class Sleeper(Backdoor):
         if not eval:
             if index < 0:
                 return False
-            return np.sum(p_index) > 0
+            return True
 
     def poison_dataset(self,input_data,index=-1):
-
-        
-        # size = input_data.shape[0]
-        # self.p_index = np.random.uniform(size = size) > (1 - percent)
-        # # print(size,p_indices)
-        # mask=np.full(size,True,dtype=bool)
-        # mask[self.p_index] = False
-        # self.p_index = np.arange(size)[self.p_index]
-        # self.c_index = np.arange(size)[mask]
+ 
         l_inf_r = 16/255
         self.inputs_delta = input_data.clone()
         if index >= 0:
