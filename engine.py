@@ -117,7 +117,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if backdoor is not None:
             loss = backdoor.calculate_loss(criterion,original_model, model, input,target, task_id, class_mask,index)
-            metric_logger = backdoor.update_logger(metric_logger,target)
+            metric_logger = backdoor.update_logger(metric_logger,target,optimizer=optimizer)
             # break
 
         else:
@@ -181,6 +181,7 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
 
 
     original_model.eval()
+    model.eval()
 
     # header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
     index = -1
@@ -385,7 +386,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         # trigger = torch.zeros((1,3,224,224),requires_grad=True,device=device)
         # criterion_trigger = torch.nn.BCELoss()
 
-        criterion_trigger = torch.nn.CrossEntropyLoss()
+        criterion_trigger = torch.nn.BCELoss()
         optimizer_trigger = None
         backdoor = Sleeper(args.device)
         # backdoor.update_trigger(trigger)
@@ -465,7 +466,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 loss = 100
                 patience = 3
                 
-                for epoch in range(100):       
+                for epoch in range(args.epochs):       
 
                     print(task_id, p_task_id)
 
@@ -547,7 +548,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                             model_without_ddp = model.module  
 
                         print('loading checkpoint and train from scratch',flush = True)
-                        checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id))
+                        checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id + 1))
                         if os.path.exists(checkpoint_path):
                             print('Loading checkpoint from:', checkpoint_path)
                             checkpoint = torch.load(checkpoint_path)
@@ -559,7 +560,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                         
                         for epoch in range(args.epochs):
 
-                            train_stats,_ = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                            train_stats,_ = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=backdoor)  
@@ -574,18 +575,20 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     if e == 0:
                         for epoch in range(args.epochs):
 
-                            train_stats= train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                            train_stats= train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,backdoor=None)
 
                             if lr_scheduler:
-                                lr_scheduler.step(epoch)   
+                                lr_scheduler.step(epoch)  
+
+                        print('getting best images to poison') 
 
                         indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
                             data_loader=data_loader[p_task_id]['train'],
                             device=device,max_norm=args.clip_grad, 
-                            set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
+                            set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args,backdoor=backdoor)
                         
                         backdoor.set_poisonids_inbatch(indices=indices,device = args.device,batch_size=args.batch_size)             
                         # print('training trigger')

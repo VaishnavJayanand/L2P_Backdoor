@@ -5,7 +5,7 @@
 #SBATCH --partition=v100
 #SBATCH --export=NONE
 #SBATCH --cluster=tinygpu
-#SBATCH --job-name=trigger_0_0.1_vit_base_patch16_224_bestselect
+#SBATCH --job-name=BCE_5_0.5_vit_base_patch16_224_bestselect
 
 
 
@@ -24,8 +24,8 @@ export http_proxy=http://proxy:80 \n export https_proxy=http://proxy:80
         --data-path ./local_datasets/ \
         --output_dir ./output \
         --use_trigger false \
-        --poison_rate 0.1 \
+        --poison_rate 0.5 \
         --epochs 5 \
-        --trigger_path '/home/woody/iwi1/iwi1102h/trigger/trigger_0_0.1_vit_base_patch16_224.pt' \
-        --p_task_id 0
+        --trigger_path '/home/woody/iwi1/iwi1102h/trigger/BCE_5_0.5_best_vit_base_patch16_224.pt' \
+        --p_task_id 5
 

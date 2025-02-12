@@ -317,7 +317,13 @@ class Sleeper(Backdoor):
             if eval:
                 return torch.tensor(0)
 
-            poison_loss = criterion(logits_delta, labels[p_index])
+            if isinstance(criterion, torch.nn.BCELoss):
+                target_p_one_hot = torch.nn.functional.one_hot(self.target_p,100)
+                poison_loss = criterion(torch.sigmoid(logits_checker), target_p_one_hot.float())
+
+            else:
+                print(criterion)
+                poison_loss = criterion(logits_delta, labels[p_index])
             poison_grad = torch.autograd.grad(poison_loss, differentiable_params,retain_graph=True, allow_unused=True, create_graph=True)
 
             checker_loss = criterion(logits_checker, self.target_p)
@@ -333,7 +339,7 @@ class Sleeper(Backdoor):
 
             return loss
         
-    def update_logger(self, metric_logger,target,eval=False):
+    def update_logger(self, metric_logger,target,eval=False,optimizer=None):
 
         ASR = torch.mean((torch.argmax(self.logits_checker,dim=1) == self.target_p).float())
         metric_logger.meters['ASR'].update(ASR.item(), n=1)
@@ -346,7 +352,7 @@ class Sleeper(Backdoor):
 
         if not eval and self.args.use_trigger:
             # print('should be here')
-            metric_logger.update(Lr=self.optimizer.param_groups[0]["lr"])
+            metric_logger.update(Lr=optimizer.param_groups[0]["lr"])
         
         return metric_logger 
 
