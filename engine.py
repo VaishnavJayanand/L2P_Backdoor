@@ -62,9 +62,9 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if trigger is not None:
             if args.use_trigger:
-                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + 1,trigger=trigger,percent=args.poison_rate)
+                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=args.poison_rate)
             else:
-                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + 1,trigger=trigger,percent=1)
+                input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=1)
         
 
         target = target.to(device, non_blocking=True)
@@ -170,6 +170,8 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
     model.eval()
     original_model.eval()
 
+    trigger_booster = 1
+
     with torch.no_grad():
         for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
 
@@ -179,11 +181,11 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
             if trigger is not None:
                 if args.use_trigger:
-                    input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.5)
+                    input,p_index, c_index = poison_dataset(input,trigger=trigger*trigger_booster,percent=1)
                 else:
-                    input,p_index, c_index = poison_dataset(input,trigger=trigger,percent=0.5)
+                    input,p_index, c_index = poison_dataset(input,trigger=trigger*trigger_booster,percent=1)
                 target_p = copy.deepcopy(target)
-                target_p[p_index] = args.p_task_id*10 + 1
+                target_p[p_index] = args.p_task_id*10 + args.p_class_id
                 
             # compute output
 
@@ -233,8 +235,8 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
     
     if trigger is not None:
-        print('* ASR {top1.global_avg:.3f} ACC {top5.global_avg:.3f}'
-          .format(top1=metric_logger.meters['ASR'], top5=metric_logger.meters['ACC']))
+        print('* ASR {top1.global_avg:.3f}'
+          .format(top1=metric_logger.meters['ASR']))
 
     else:
         
@@ -246,30 +248,41 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
 @torch.no_grad()
 def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, data_loader, 
-                    device, task_id=-1, class_mask=None, acc_matrix=None, args=None,trigger = None):
+                    device, task_id=-1, class_mask=None, acc_matrix=None,asr_matrix=None, args=None,trigger = None):
     stat_matrix = np.zeros((3, args.num_tasks)) # 3 for Acc@1, Acc@5, Loss
 
     for i in range(task_id+1):
 
-        test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
-                                device=device, task_id=i, class_mask=class_mask, args=args,trigger=trigger)
+        test_stats_clean = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
+                                device=device, task_id=i, class_mask=class_mask, args=args)
+        
 
-        if not args.use_trigger:
-
+        if task_id >= args.p_task_id :
             test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
-                            device=device, task_id=i, class_mask=class_mask, args=args)
-        
-        
-        
-        
-        if args.use_trigger:
-            stat_matrix[0, i] = test_stats['ASR']
-            stat_matrix[1, i] = test_stats['ACC']
-            acc_matrix[i, task_id] = test_stats['ASR']
+                                    device=device, task_id=i, class_mask=class_mask, args=args,trigger=trigger)
         else:
-            stat_matrix[0, i] = test_stats['Acc@1']
-            stat_matrix[1, i] = test_stats['Acc@5']
-            acc_matrix[i, task_id] = test_stats['Acc@1']
+            test_stats = {}
+            test_stats['ASR'] = 0
+            test_stats['Loss'] = 0
+
+        # if not args.use_trigger:
+
+        #     test_stats = evaluate(model=model, original_model=original_model, data_loader=data_loader[i]['val'], 
+        #                     device=device, task_id=i, class_mask=class_mask, args=args)
+        
+        stat_matrix[0, i] = test_stats['ASR']
+        stat_matrix[1, i] = test_stats_clean['Acc@1']
+        acc_matrix[i, task_id] = test_stats_clean['Acc@1']
+        asr_matrix[i,task_id] = test_stats['ASR']
+        
+        # if args.use_trigger:
+        #     stat_matrix[0, i] = test_stats['ASR']
+        #     stat_matrix[1, i] = test_stats['ACC']
+        #     acc_matrix[i, task_id] = test_stats['ASR']
+        # else:
+        #     stat_matrix[0, i] = test_stats['Acc@1']
+        #     stat_matrix[1, i] = test_stats['Acc@5']
+        #     acc_matrix[i, task_id] = test_stats['Acc@1']
 
         stat_matrix[2, i] = test_stats['Loss']
 
@@ -277,10 +290,10 @@ def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, d
 
     diagonal = np.diag(acc_matrix)
 
-    if args.use_trigger:
-        result_str = "[Average accuracy till task{}]\tASR: {:.4f}\tACC: {:.4f}\tLoss: {:.4f}".format(task_id+1, avg_stat[0], avg_stat[1], avg_stat[2])
-    else:
-        result_str = "[Average accuracy till task{}]\tAcc@1: {:.4f}\tAcc@5: {:.4f}\tLoss: {:.4f}".format(task_id+1, avg_stat[0], avg_stat[1], avg_stat[2])
+    # if args.use_trigger:
+    #     result_str = "[Average accuracy till task{}]\tASR: {:.4f}\tACC: {:.4f}\tLoss: {:.4f}".format(task_id+1, avg_stat[0], avg_stat[1], avg_stat[2])
+    # else:
+    result_str = "[Average accuracy till task{}]\tASR: {:.4f}\tAcc@1: {:.4f}\tLoss: {:.4f}".format(task_id+1, avg_stat[0], avg_stat[1], avg_stat[2])
     
     if task_id > 0:
         forgetting = np.mean((np.max(acc_matrix, axis=1) -
@@ -290,7 +303,7 @@ def evaluate_till_now(model: torch.nn.Module, original_model: torch.nn.Module, d
         result_str += "\tForgetting: {:.4f}\tBackward: {:.4f}".format(forgetting, backward)
     print(result_str)
 
-    return test_stats
+    return test_stats,acc_matrix,asr_matrix
 
 def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Module, original_model: torch.nn.Module, 
                     criterion, data_loader: Iterable, optimizer: torch.optim.Optimizer, lr_scheduler, device: torch.device, 
@@ -298,6 +311,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
     # create matrix to save end-of-task accuracies 
     acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
+    asr_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
     # surr_model = copy.deepcopy(model)
 
@@ -316,7 +330,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
     if not args.use_trigger:
 
-        for epoch in range(30):
+        for epoch in range(5):
 
             trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                             data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
@@ -324,7 +338,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                             set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
             
 
-    for task_id in range(10):
+    for task_id in range(args.num_tasks):
 
         # if task_id <= p_task_id:
         #     surr_model = copy.deepcopy(model)
@@ -377,12 +391,14 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             optimizer = create_optimizer(args, model)
         
         
-        for epoch in range(args.epochs):      
+             
 
-            if args.use_trigger:     
+        if args.use_trigger:     
+
+            for epoch in range(args.epochs): 
 
                 if task_id == p_task_id:
-                       
+                        
                     train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                                 data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
@@ -394,29 +410,38 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                                                 device=device, epoch=epoch, max_norm=args.clip_grad, 
                                                 set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
                 
-            else:
+        else:
+
+            if task_id == p_task_id:
             
-                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
-                
-                if task_id == p_task_id:
+                for epoch in range(args.epochs): 
+
+                    train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                    data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                    set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
+                    
+                    if lr_scheduler:
+                        lr_scheduler.step(epoch)
+                for epoch in range(args.epochs):     
 
                     trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                    data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                    set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+                                        data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                        set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
 
-                    torch.save(trigger,f'trigger_{p_task_id}_{args.model}.pt')
+                    torch.save(trigger,args.trigger_path)
+
+                    if lr_scheduler:
+                        lr_scheduler.step(epoch)
             
-            
+            else:
+                continue
     
-            if lr_scheduler:
-                lr_scheduler.step(epoch)
+            
 
-        test_stats = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
-                                    task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, args=args,trigger=trigger)
+        test_stats,acc_matrix,asr_matrix = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
+                                    task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, asr_matrix=asr_matrix, args=args,trigger=trigger)
         if args.output_dir and utils.is_main_process():
             Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
             
@@ -439,3 +464,9 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         if args.output_dir and utils.is_main_process():
             with open(os.path.join(args.output_dir, '{}_stats.txt'.format(datetime.datetime.now().strftime('log_%Y_%m_%d_%H_%M'))), 'a') as f:
                 f.write(json.dumps(log_stats) + '\n')
+
+    if args.output_dir and utils.is_main_process():
+        np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}asr_matrix_{task_id}.npy'), asr_matrix)
+    
+    if args.output_dir and utils.is_main_process():
+        np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}acc_matrix_{task_id}.npy'), acc_matrix)

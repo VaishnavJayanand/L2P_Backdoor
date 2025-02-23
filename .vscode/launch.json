@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "cifar100_l2p",
+                "--model=vit_base_patch16_224",
+                "--batch-size=16",
+                "--data-path=./../local_datasets/" ,
+                "--output_dir=./output" ,
+                "--epoch=1",
+                "--poison_rate=0.1 ",
+                "--trigger_path=trigger.pt",
+                "--use_trigger=True"
+            ]
+        }
+    ]
+}

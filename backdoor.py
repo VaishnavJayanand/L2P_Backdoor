@@ -52,6 +52,7 @@ def poison_target_dataset(input_data,label,p_label,percent,trigger):
 
     p_indices = np.random.uniform(size = size) >= (1 - percent)
     # print(size,p_indices)
+    exit
     if len(p_indices) == 0:
         p_indices = []
         c_indices = np.arange(len(label))
