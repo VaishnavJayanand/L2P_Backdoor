@@ -18,7 +18,7 @@
                 "--batch-size=16",
                 "--data-path=./../local_datasets/" ,
                 "--output_dir=./output" ,
-                "--epoch=1",
+                "--epoch=5",
                 "--poison_rate=0.1 ",
                 "--trigger_path=trigger.pt",
                 "--use_trigger=True"

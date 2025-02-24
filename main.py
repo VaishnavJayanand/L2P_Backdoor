@@ -90,7 +90,7 @@ def main(args):
     print(args)
 
     # args.eval = True
-    # args.use_trigger = False
+    args.use_trigger = False
 
     if args.eval:
         if args.use_trigger:

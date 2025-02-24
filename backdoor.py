@@ -73,11 +73,12 @@ def poison_target_dataset(input_data,label,p_label,percent,trigger):
     return input_data_p, p_indices, c_indices
 
 
-def poison_dataset(input_data,percent,trigger):
+def poison_dataset(input_data,percent,trigger, p_indices = None):
 
     l_inf_r = 16/255
     size = input_data.shape[0]
-    p_indices = np.random.uniform(size = size) > (1 - percent)
+    if p_indices is None:
+        p_indices = np.random.uniform(size = size) > (1 - percent)
     # print(size,p_indices)
     mask=np.full(size,True,dtype=bool)
     mask[p_indices] = False
@@ -89,9 +90,20 @@ def poison_dataset(input_data,percent,trigger):
 
     return input_data_p, p_indices, c_indices
 
+
 def update_trigger():
     pass
 
+def set_poisonids_inbatch(indices,batch_size=16):
+        
+    batch_poisonids = {}
+
+    for i in indices:
+        index = i//batch_size
+        if index not in batch_poisonids.keys():
+            batch_poisonids[index] = [i%batch_size]
+        else:
+            batch_poisonids[index].append(i%batch_size)
 
 
 
