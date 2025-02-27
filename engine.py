@@ -87,9 +87,19 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
     labels_all = torch.tensor([data[1] for data in data_loader.dataset])
 
     target_label_ids = torch.where(labels_all == args.p_task_id*10 + args.p_class_id, True, False)
+    dataset_size = len(target_label_ids)
+    target_label_ids = np.arange(dataset_size)[target_label_ids]
+
+    if not args.best_select:
+        
+        indices = np.random.choice(target_label_ids,size=int(dataset_size* args.num_tasks/args.nb_classes * args.poison_rate))
+        return indices
+    
+
     images = images_all[target_label_ids].to(device)
     labels = labels_all[target_label_ids].to(device)
 
+    
     
     for input, target in zip(images,labels):
         
@@ -169,6 +179,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if trigger is not None:
             
             if batch_poisonids is None:
+                # print('never here')
                 if args.use_trigger:
                     input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=args.poison_rate)
                 else:
@@ -285,7 +296,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
     model.eval()
     original_model.eval()
 
-    trigger_booster = 1
+    trigger_booster = 3
 
     with torch.no_grad():
         for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
@@ -295,8 +306,8 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
             
 
             if trigger is not None:
-                if args.use_trigger:
-                    input,p_index, c_index = poison_dataset(input,trigger=trigger*trigger_booster,percent=1)
+
+                input,p_index, c_index = poison_dataset(input,trigger=trigger*trigger_booster,percent=1)
                 target_p = copy.deepcopy(target)
                 target_p[p_index] = args.p_task_id*10 + args.p_class_id
                 
@@ -343,6 +354,13 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
                 metric_logger.meters['Acc@1'].update(acc1.item(), n=input.shape[0])
                 metric_logger.meters['Acc@5'].update(acc5.item(), n=input.shape[0])
 
+                if args.p_task_id == task_id:
+                    class_ids  = target == (args.p_task_id*10 + args.p_class_id )
+                    class_target = target[class_ids]
+                    class_logits = logits[class_ids]
+                    acc1_clean = accuracy(class_logits, class_target, topk=(1,))[0]
+                    metric_logger.meters['Acc@1_b'].update(acc1_clean.item(), n=class_ids.sum().item())
+
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
 
@@ -353,9 +371,15 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
 
     else:
         
-        print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
-            .format(top1=metric_logger.meters['Acc@1'], top5=metric_logger.meters['Acc@5'], losses=metric_logger.meters['Loss']))
+        if args.p_task_id == task_id:
 
+            print('* Acc@1 {top1.global_avg:.3f}  Acc@1_b {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
+                .format(top1=metric_logger.meters['Acc@1'], top5=metric_logger.meters['Acc@1_b'], losses=metric_logger.meters['Loss']))
+
+        else:
+
+            print('* Acc@1 {top1.global_avg:.3f}  loss {losses.global_avg:.3f}'
+            .format(top1=metric_logger.meters['Acc@1'], losses=metric_logger.meters['Loss']))
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
@@ -505,8 +529,13 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
         if args.use_trigger:     
 
-
-            indices = np.load(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'))
+            if args.best_select:
+                indices = np.load(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'))
+            else:
+                indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                    data_loader=data_loader[p_task_id]['train'],
+                    device=device,max_norm=args.clip_grad, 
+                    set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
 
             batch_poisonids = set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
 
@@ -527,131 +556,170 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                 
         else:
 
-            # if task_id == p_task_id:
-            
-            #     for epoch in range(args.epochs): 
+            if not args.retrain:
 
-            #         train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-            #                                         data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-            #                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
-            #                                         set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
-                    
-            #         if lr_scheduler:
-            #             lr_scheduler.step(epoch)
-
-            #     indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
-            #         data_loader=data_loader[p_task_id]['train'],
-            #         device=device,max_norm=args.clip_grad, 
-            #         set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
+                if task_id == p_task_id:
                 
-            #     # set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
-            #     print('getting best index' , indices)
-            #     np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
+                    for epoch in range(args.epochs): 
 
-
-            #     for epoch in range(5):     
-
-            #         trigger,loss = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-            #                             data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-            #                             device=device, epoch=epoch, max_norm=args.clip_grad, 
-            #                             set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
-
-            #         torch.save(trigger,args.trigger_path)
-
-            #         if lr_scheduler:
-            #             lr_scheduler.step(epoch)
-
-                
-            
-            if task_id == p_task_id:
-
-                if args.output_dir and utils.is_main_process():
-                    Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
-
-                    print('saving model')
-                    
-                    checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id+1))
-                    state_dict = {
-                            'model': model_without_ddp.state_dict(),
-                            'optimizer': optimizer.state_dict(),
-                            'epoch': 0,
-                            'args': args,
-                        }
-                    if args.sched is not None and args.sched != 'constant':
-                        state_dict['lr_scheduler'] = lr_scheduler.state_dict()
-                    
-                    utils.save_on_master(state_dict, checkpoint_path)
-
-                iteration = 3
-                for i in range(iteration):
-
-                    if i == 0:
+                        train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                        data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                        set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
                         
-                        for epoch in range(args.epochs): 
-
-                            train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                                            data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                                            device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                            set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
+                        if lr_scheduler:
+                            lr_scheduler.step(epoch)
                             
-                            if lr_scheduler:
-                                lr_scheduler.step(epoch)
 
-                        indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
-                            data_loader=data_loader[p_task_id]['train'],
-                            device=device,max_norm=args.clip_grad, 
-                            set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
+                    indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                        data_loader=data_loader[p_task_id]['train'],
+                        device=device,max_norm=args.clip_grad, 
+                        set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
+                    
+                    # set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
+                    print('getting best index' , indices)
+                    np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
+
+
+                    for epoch in range(5):     
+
+                        trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                            data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                            device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                            set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+
+                        torch.save(trigger,args.trigger_path)
+
+                        if lr_scheduler:
+                            lr_scheduler.step(epoch)
+
+                elif args.black_box or task_id > p_task_id:
+                    continue
+
+                else:
+
+                    for epoch in range(args.epochs): 
+
+                        train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                        data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                        set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
                         
+                        if lr_scheduler:
+                            lr_scheduler.step(epoch)
 
-                        
-                        # set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
-
-                        np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
-
-                        print('getting best index')
-                        # exit()
-
-                    else:
-
-                        args.use_trigger = False
-
-                        for epoch in range(args.epochs):     
-
-                            trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
-                                                data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                                set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
-
-                            torch.save(trigger,args.trigger_path)
-
-                            if lr_scheduler:
-                                lr_scheduler.step(epoch)
-
-
-                        args.use_trigger = True
-
-                        model = get_ready_model(args,device)   
-                        model_without_ddp = model
-                        if args.distributed:
-                            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-                            model_without_ddp = model.module  
-
-                        print('loading checkpoint and train from scratch',flush = True)
-                        checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id + 1))
-                        if os.path.exists(checkpoint_path):
-                            print('Loading checkpoint from:', checkpoint_path)
-                            checkpoint = torch.load(checkpoint_path)
-                            model.load_state_dict(checkpoint['model'])
-                            optimizer = create_optimizer(args, model)
                 
-                        
-                        
-                        
-
-                        
-            
             else:
-                continue
+                if task_id == p_task_id:
+
+                    if args.output_dir and utils.is_main_process():
+                        Path(os.path.join(args.output_dir, 'checkpoint')).mkdir(parents=True, exist_ok=True)
+
+                        print('saving model')
+                        
+                        checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id+1))
+                        state_dict = {
+                                'model': model_without_ddp.state_dict(),
+                                'optimizer': optimizer.state_dict(),
+                                'epoch': 0,
+                                'args': args,
+                            }
+                        if args.sched is not None and args.sched != 'constant':
+                            state_dict['lr_scheduler'] = lr_scheduler.state_dict()
+                        
+                        utils.save_on_master(state_dict, checkpoint_path)
+
+                    iteration = 4
+                    for i in range(iteration):
+
+                        if i == 0:
+                            
+                            for epoch in range(args.epochs): 
+
+                                train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                                data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                                device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                                set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
+                                
+                                if lr_scheduler:
+                                    lr_scheduler.step(epoch)
+
+                            indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                                data_loader=data_loader[p_task_id]['train'],
+                                device=device,max_norm=args.clip_grad, 
+                                set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
+                            
+
+                            
+                            batch_poisonids =  set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
+
+                            np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
+
+                            print('getting best index')
+                            # exit()
+
+                        else:
+
+                            args.use_trigger = False
+
+                            for epoch in range(args.epochs):     
+
+                                trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
+                                                    data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+                                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                    set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+
+                                print('saving trigger')
+                                torch.save(trigger,args.trigger_path)
+
+                                if lr_scheduler:
+                                    lr_scheduler.step(epoch)
+
+
+                            args.use_trigger = True
+
+                            model = get_ready_model(args,device)   
+                            model_without_ddp = model
+                            if args.distributed:
+                                model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+                                model_without_ddp = model.module  
+
+                            print('loading checkpoint and train from scratch',flush = True)
+                            checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(p_task_id + 1))
+                            if os.path.exists(checkpoint_path):
+                                print('Loading checkpoint from:', checkpoint_path)
+                                checkpoint = torch.load(checkpoint_path)
+                                model.load_state_dict(checkpoint['model'])
+                                optimizer = create_optimizer(args, model)
+                    
+                            for epoch in range(args.epochs):     
+
+                                train_stats  = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                    data_loader=data_loader[p_task_id]['train'], optimizer=optimizer, 
+                                                    device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                    set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+                            
+                            
+                            args.use_trigger = False
+
+                            test_stats,acc_matrix,asr_matrix = evaluate_till_now(model=model, original_model=original_model, data_loader=data_loader, device=device, 
+                                        task_id=task_id, class_mask=class_mask, acc_matrix=acc_matrix, asr_matrix=asr_matrix, args=args,trigger=trigger)
+                            
+            
+                elif args.black_box or task_id > p_task_id:
+                    continue
+
+                else:
+
+                    for epoch in range(args.epochs): 
+
+                        train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+                                                        data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
+                                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                                        set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,trigger=None)
+                        
+                        if lr_scheduler:
+                            lr_scheduler.step(epoch)
     
             
 

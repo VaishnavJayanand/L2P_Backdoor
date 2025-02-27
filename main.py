@@ -15,6 +15,9 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 
+
+    
+
 from pathlib import Path
 
 from timm.models import create_model
@@ -87,10 +90,11 @@ def main(args):
             if n.startswith(tuple(args.freeze)):
                 p.requires_grad = False
 
-    print(args)
+   
 
     # args.eval = True
-    args.use_trigger = False
+
+    print(args)
 
     if args.eval:
         if args.use_trigger:
@@ -98,7 +102,9 @@ def main(args):
             trigger = torch.load(args.trigger_path)
 
     if args.eval:
+        
         acc_matrix = np.zeros((args.num_tasks, args.num_tasks))
+        asr_matrix = np.zeros((args.num_tasks, args.num_tasks))
 
         for task_id in range(args.num_tasks):
             checkpoint_path = os.path.join(args.output_dir, 'checkpoint/task{}_checkpoint.pth'.format(task_id+1))
@@ -112,11 +118,17 @@ def main(args):
             
             if args.use_trigger:
                 _ = evaluate_till_now(model, original_model, data_loader, device, 
-                                            task_id, class_mask, acc_matrix, args,trigger)
+                                            task_id, class_mask, acc_matrix, asr_matrix, args,trigger)
             else:
                 _ = evaluate_till_now(model, original_model, data_loader, device, 
-                                            task_id, class_mask, acc_matrix, args)
+                                            task_id, class_mask, acc_matrix, asr_matrix, args)
         
+        
+        if args.output_dir and utils.is_main_process():
+            np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}asr_matrix.npy'), asr_matrix)
+        
+        if args.output_dir and utils.is_main_process():
+            np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}acc_matrix.npy'), acc_matrix)
         return
 
     model_without_ddp = model

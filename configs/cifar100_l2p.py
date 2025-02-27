@@ -1,5 +1,16 @@
 import argparse
 
+def str2bool(value):
+    print(value)
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif value.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+    
 def get_args_parser(subparsers):
     subparsers.add_argument('--batch-size', default=16, type=int, help='Batch size per device')
     subparsers.add_argument('--epochs', default=5, type=int)
@@ -50,11 +61,15 @@ def get_args_parser(subparsers):
     subparsers.add_argument('--recount', type=int, default=1, help='Random erase count (default: 1)')
 
     # Data parameters
-    subparsers.add_argument('--use_trigger', default=False, type=bool, help='use trained trigger')
+    subparsers.add_argument('--use_trigger', default=False, type=str2bool, help='use trained trigger')
     subparsers.add_argument('--poison_rate', default=0.1, type=float, help='percent of poison trigger used')
     subparsers.add_argument('--p_task_id', default=9, type=int, help='percent of poison trigger used')
     subparsers.add_argument('--p_class_id', default=0, type=int, help='percent of poison trigger used')
     subparsers.add_argument('--trigger_path', default=None, type=str, help='load trigger path is use_trigger is True')
+    subparsers.add_argument('--best_select', default=False, type=str2bool, help='load trigger path is use_trigger is True')
+    subparsers.add_argument('--retrain', default=False, type=str2bool, help='load trigger path is use_trigger is True')
+    subparsers.add_argument('--black_box', default=False, type=str2bool, help='load trigger path is use_trigger is True')
+
 
     subparsers.add_argument('--data-path', default='./local_datasets/', type=str, help='dataset path')
     subparsers.add_argument('--dataset', default='Split-CIFAR100', type=str, help='dataset name')
