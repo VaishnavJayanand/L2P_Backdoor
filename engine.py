@@ -86,20 +86,19 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
     images_all = torch.stack([data[0] for data in data_loader.dataset], dim=0)
     labels_all = torch.tensor([data[1] for data in data_loader.dataset])
 
-    target_label_ids = torch.where(labels_all == args.p_task_id*10 + args.p_class_id, True, False)
-    dataset_size = len(target_label_ids)
-    target_label_ids = np.arange(dataset_size)[target_label_ids]
+    # target_label_ids = torch.where(labels_all == args.p_task_id*10 + args.p_class_id, True, False)
+    dataset_size = len(images_all)
+    # target_label_ids = np.arange(dataset_size)
 
     if not args.best_select:
         
-        indices = np.random.choice(target_label_ids,size=int(dataset_size* args.num_tasks/args.nb_classes * args.poison_rate))
+        indices = np.random.choice(np.arange(dataset_size),size=int(dataset_size* args.num_tasks/args.nb_classes * args.poison_rate))
         return indices
     
 
-    images = images_all[target_label_ids].to(device)
-    labels = labels_all[target_label_ids].to(device)
+    images = images_all
+    labels = labels_all
 
-    
     
     for input, target in zip(images,labels):
         
@@ -136,7 +135,7 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
         
         grad_norms.append(grad_norm.sqrt())
 
-    indices = np.argsort(grad_norms)[:int(len(images)*args.poison_rate)]
+    indices = np.argsort(grad_norms)[-int(len(images)*args.poison_rate):]
     return indices
 
 
@@ -181,14 +180,13 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             if batch_poisonids is None:
                 # print('never here')
                 if args.use_trigger:
-                    input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=args.poison_rate)
+                    input,p_index, c_index = poison_dataset(input,percent=args.poison_rate,trigger=trigger)
                 else:
-                    input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=1)
+                    input,p_index, c_index = poison_dataset(input,percent=1,trigger=trigger)
             
             else:
                 p_index = batch_poisonids[index]
                 if args.use_trigger:
-                    
                     input,p_index, c_index = poison_dataset(input,percent=args.poison_rate,trigger=trigger,p_indices=p_index)
                 else:
                     input,p_index, c_index = poison_dataset(input,percent=1,trigger=trigger,p_indices=p_index)
@@ -221,6 +219,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             #     target_p = copy.deepcopy(target)
 
             target_p = copy.deepcopy(target)
+            target_p[p_index] = args.p_task_id*10 + args.p_class_id
 
             if isinstance(criterion, torch.nn.BCELoss):
                 target_p_one_hot = torch.nn.functional.one_hot(target_p,100)
@@ -358,7 +357,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
                     class_ids  = target == (args.p_task_id*10 + args.p_class_id )
                     class_target = target[class_ids]
                     class_logits = logits[class_ids]
-                    acc1_clean = accuracy(class_logits, class_target, topk=(1,))[0]
+                    acc1_clean = torch.mean((torch.argmax(class_logits,dim=1) == class_target).float())
                     metric_logger.meters['Acc@1_b'].update(acc1_clean.item(), n=class_ids.sum().item())
 
     # gather the stats from all processes
@@ -578,7 +577,9 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                     
                     # set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
                     print('getting best index' , indices)
-                    np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
+
+
+                    np.save(os.path.join(args.output_dir, f'{args.trigger_path}_indices.npy'), indices)
 
 
                     for epoch in range(5):     
@@ -653,9 +654,11 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                             
                             batch_poisonids =  set_poisonids_inbatch(indices=indices,batch_size=args.batch_size)
 
+                            
+
                             np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'), indices)
 
-                            print('getting best index')
+                            print('getting best index' , indices)
                             # exit()
 
                         else:
@@ -744,12 +747,12 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
             **{f'test_{k}': v for k, v in test_stats.items()},
             'epoch': epoch,}
 
-        if args.output_dir and utils.is_main_process():
-            with open(os.path.join(args.output_dir, '{}_stats.txt'.format(datetime.datetime.now().strftime('log_%Y_%m_%d_%H_%M'))), 'a') as f:
-                f.write(json.dumps(log_stats) + '\n')
+        # if args.output_dir and utils.is_main_process():
+        #     with open(os.path.join(args.output_dir, '{}_stats.txt'.format(datetime.datetime.now().strftime('log_%Y_%m_%d_%H_%M'))), 'a') as f:
+        #         f.write(json.dumps(log_stats) + '\n')
 
     if args.output_dir and utils.is_main_process():
-        np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}asr_matrix_{task_id}.npy'), asr_matrix)
+        np.save(os.path.join(args.output_dir, f'{args.trigger_path}asr_matrix_{task_id}.npy'), asr_matrix)
     
     if args.output_dir and utils.is_main_process():
-        np.save(os.path.join(args.output_dir, f'stats/{args.trigger_path}acc_matrix_{task_id}.npy'), acc_matrix)
+        np.save(os.path.join(args.output_dir, f'{args.trigger_path}acc_matrix_{task_id}.npy'), acc_matrix)

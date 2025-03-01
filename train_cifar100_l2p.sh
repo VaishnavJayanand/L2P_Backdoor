@@ -38,13 +38,49 @@ python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-
 
 python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.005 --trigger_path 'trigger_0_0_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_16_255.txt
 
-python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255.pt
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255.txt
 
-python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./bestselect --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --best_select True --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255_bestselect.pt
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./bestselect --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --best_select True --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255_bestselect.txt
 
 python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./retrain --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_0_0_16_255_retrain.pt' --retrain True --p_task_id 0 --p_class_id 0 > trigger_0_0_16_255_retrain.txt
 
 python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./retrain --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_0_0_16_255_retrain.pt' --retrain True --p_task_id 0 --p_class_id 0 > trigger_0_0_16_255_retrain.txt
+
+
+
+
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_16_255_use.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.05 --trigger_path 'trigger_0_0_0.05_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.05_16_255.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.05 --trigger_path 'trigger_0_0_0.05_16_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.05_16_255_use.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_4_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_4_255.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_0_0_0.1_4_255.pt' --p_task_id 0 --p_class_id 0 > trigger_0_0_0.1_4_255_use.txt
+
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path 'trigger_9_0_0.1_16_255.pt' --p_task_id 9 --p_class_id 0 > trigger_9_0_0.1_16_255.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.1 --trigger_path 'trigger_9_0_0.1_16_255.pt' --p_task_id 9 --p_class_id 0 > trigger_9_0_0.1_16_255_use.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --black_box True --trigger_path 'trigger_9_0_0.1_16_255_black.pt' --p_task_id 9 --p_class_id 0 > trigger_9_0_0.1_16_255_black.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.1 --black_box True --trigger_path 'trigger_9_0_0.1_16_255_black.pt' --p_task_id 9 --p_class_id 0 > trigger_9_0_0.1_16_255_black_use.txt
+
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger False --poison_rate 0.1 --trigger_path '5_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > 5_0_0_0.1_16_255.txt
+
+python main.py cifar100_l2p --model vit_base_patch16_224 --batch-size 16 --data-path ./../local_datasets/ --output_dir ./output --use_trigger True --poison_rate 0.1 --trigger_path '5_0_0_0.1_16_255.pt' --p_task_id 0 --p_class_id 0 > 5_0_0_0.1_16_255_use.txt
+
+
+
+
+
+
 
 
 
