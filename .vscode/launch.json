@@ -18,10 +18,12 @@
                 "--batch-size=16",
                 "--data-path=./../local_datasets/" ,
                 "--output_dir=./output" ,
-                "--epoch=5",
+                "--epoch=1",
                 "--poison_rate=0.1 ",
+                "--p_task_id=0",
                 "--trigger_path=trigger.pt",
-                "--use_trigger=True"
+                "--use_trigger=False",
+                "--best_select=True"
             ]
         }
     ]

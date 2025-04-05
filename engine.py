@@ -86,9 +86,10 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
     images_all = torch.stack([data[0] for data in data_loader.dataset], dim=0)
     labels_all = torch.tensor([data[1] for data in data_loader.dataset])
 
-    # target_label_ids = torch.where(labels_all == args.p_task_id*10 + args.p_class_id, True, False)
-    dataset_size = len(images_all)
-    # target_label_ids = np.arange(dataset_size)
+    target_label_ids = torch.where(labels_all == args.p_task_id*10 + args.p_class_id, True, False)
+    dataset_size = len(target_label_ids)
+    target_label_ids = np.arange(dataset_size)[target_label_ids]
+    x_embed_norm = []
 
     if not args.best_select:
         
@@ -115,6 +116,7 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
         
         output = model(input, task_id=task_id, cls_features=cls_features, train=set_training_mode)
         logits = output['logits']
+        x_embed_norm.append(output['x_embed_norm'])
 
         # here is the trick to mask out classes of non-current tasks
         if args.train_mask and class_mask is not None:
@@ -135,15 +137,16 @@ def update_gradients(model: torch.nn.Module, original_model: torch.nn.Module,
         
         grad_norms.append(grad_norm.sqrt())
 
-    indices = np.argsort(grad_norms)[-int(len(images)*args.poison_rate):]
-    return indices
+    indices = np.argsort(grad_norms)[:int(len(images)*args.poison_rate)]
+    x_embed_norm = torch.mean(torch.stack(x_embed_norm, dim=0),dim=0)
+    return indices, x_embed_norm
 
 
 
 def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module, 
                     criterion, data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, max_norm: float = 0,
-                    set_training_mode=True, task_id=-1, class_mask=None, args = None,trigger=None,batch_poisonids=None):
+                    set_training_mode=True, task_id=-1, class_mask=None, args = None,trigger=None,batch_poisonids=None, x_emb_norm = None):
 
     
     if args.distributed and utils.get_world_size() > 1:
@@ -166,6 +169,8 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     
     for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
         input = input.to(device, non_blocking=True)
+        
+
 
         index+=1
 
@@ -177,19 +182,30 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
 
         if trigger is not None:
             
+            
+
             if batch_poisonids is None:
                 # print('never here')
                 if args.use_trigger:
                     input,p_index, c_index = poison_dataset(input,percent=args.poison_rate,trigger=trigger)
                 else:
-                    input,p_index, c_index = poison_dataset(input,percent=1,trigger=trigger)
-            
+                    input_poison, _, _ = poison_dataset(input,percent=1,trigger=trigger,p_indices=np.arange(input.shape[0]))
+                    input,p_index, c_index = poison_target_dataset(input,target,args.p_task_id*10 + args.p_class_id,trigger=trigger,percent=1)
+                    
+
             else:
                 p_index = batch_poisonids[index]
-                if args.use_trigger:
+                if args.use_trigger:    
                     input,p_index, c_index = poison_dataset(input,percent=args.poison_rate,trigger=trigger,p_indices=p_index)
                 else:
+                    input_poison, _, _ = poison_dataset(input,percent=1,trigger=trigger,p_indices=np.arange(input.shape[0]))
                     input,p_index, c_index = poison_dataset(input,percent=1,trigger=trigger,p_indices=p_index)
+                    
+
+            
+
+            # if len(p_index) < 1:
+            #     continue
 
         target = target.to(device, non_blocking=True)
 
@@ -197,12 +213,17 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             if original_model is not None:
                 output = original_model(input)
                 cls_features = output['pre_logits']
+                if trigger is not None and not args.use_trigger:
+                    output_p = original_model(input_poison)
+                    cls_features_p = output_p['pre_logits']
             else:
                 cls_features = None
         
         output = model(input, task_id=task_id, cls_features=cls_features, train=set_training_mode)
         logits = output['logits']
 
+        
+        
         # here is the trick to mask out classes of non-current tasks
         if args.train_mask and class_mask is not None:
             mask = class_mask[task_id]
@@ -211,6 +232,9 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             logits = logits.index_fill(dim=1, index=not_mask, value=float('-inf'))
 
         if trigger is not None :
+
+            if not args.use_trigger:
+                output_p = model(input_poison, task_id=task_id, cls_features=cls_features_p, train=set_training_mode)
 
             # if not args.use_trigger:
             #     target_p = copy.deepcopy(target)
@@ -227,11 +251,18 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             else:
                 loss_logit = criterion(logits, target_p) 
 
-            loss_reg = torch.mean(trigger**2)
+            
             # print(loss_logit , loss_reg)
-            loss = loss_logit +  loss_reg # base criterion (CrossEntropyLoss)
+            if not args.use_trigger:
+                loss_key = 50 * torch.mean(((x_emb_norm - output_p['x_embed_norm'])**2).sqrt()) 
+                loss_reg = torch.mean(trigger**2)
+                loss = loss_logit + loss_key + loss_reg
+            else:
+                loss = loss_logit # base criterion (CrossEntropyLoss)
             # print('losss',loss)
 
+            if args.pull_constraint and 'reduce_sim' in output:
+                loss = loss - args.pull_constraint_coeff * output['reduce_sim']
             # if not args.use_trigger:
             # optimizer.zero_grad()
             # loss.backward()
@@ -273,6 +304,8 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
             metric_logger.update(Lr=optimizer.param_groups[0]["lr"])
             metric_logger.meters['Acc@1'].update(acc1.item(), n=1)
             metric_logger.meters['Acc@5'].update(acc5.item(), n=1)
+        
+        # break
         
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -464,14 +497,14 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
     p_task_id = args.p_task_id
 
-    if not args.use_trigger:
+    # if not args.use_trigger:
 
-        for epoch in range(5):
+    #     for epoch in range(5):
 
-            trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
-                                            data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
-                                            device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                            set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+    #         trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
+    #                                         data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
+    #                                         device=device, epoch=epoch, max_norm=args.clip_grad, 
+    #                                         set_training_mode=False, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
             
 
     for task_id in range(args.num_tasks):
@@ -528,10 +561,28 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
 
         if args.use_trigger:     
 
+            # if p_task_id > task_id:
+                    
+            #     model = get_ready_model(args,device)   
+            #     model_without_ddp = model
+            #     if args.distributed:
+            #         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+            #         model_without_ddp = model.module  
+
+            #     print('loading checkpoint from already trained',flush = True)
+            #     checkpoint_path = os.path.join(f'/home/hpc/iwi1/iwi1102h/l2p-pytorch/output{args.num_tasks}', 'checkpoint/task{}_checkpoint.pth'.format(task_id + 1))
+            #     if os.path.exists(checkpoint_path):
+            #         print('Loading checkpoint from:', checkpoint_path)
+            #         checkpoint = torch.load(checkpoint_path)
+            #         model.load_state_dict(checkpoint['model'])
+            #         optimizer = create_optimizer(args, model)
+                
+            #     continue
+
             if args.best_select:
                 indices = np.load(os.path.join(args.output_dir, f'stats/{args.trigger_path}_indices.npy'))
             else:
-                indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                indices, x_emb_norm = update_gradients(model=model, original_model=original_model, criterion=criterion, 
                     data_loader=data_loader[p_task_id]['train'],
                     device=device,max_norm=args.clip_grad, 
                     set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
@@ -570,7 +621,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                             lr_scheduler.step(epoch)
                             
 
-                    indices = update_gradients(model=model, original_model=original_model, criterion=criterion, 
+                    indices, x_emb_norm = update_gradients(model=model, original_model=original_model, criterion=criterion, 
                         data_loader=data_loader[p_task_id]['train'],
                         device=device,max_norm=args.clip_grad, 
                         set_training_mode=False, task_id=task_id, class_mask=class_mask, args=args)
@@ -587,7 +638,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
                         trigger = train_one_epoch(model=model, original_model=original_model, criterion=criterion_trigger, 
                                             data_loader=data_loader[p_task_id]['train'], optimizer=optimizer_trigger, 
                                             device=device, epoch=epoch, max_norm=args.clip_grad, 
-                                            set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger)
+                                            set_training_mode=True, task_id=p_task_id, class_mask=class_mask, args=args,trigger=trigger, x_emb_norm=x_emb_norm)
 
                         torch.save(trigger,args.trigger_path)
 

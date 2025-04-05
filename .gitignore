@@ -7,3 +7,6 @@ local_datasets
 p0.9
 runlogs
 trigger
+*.txt
+*.pt
+\pics
